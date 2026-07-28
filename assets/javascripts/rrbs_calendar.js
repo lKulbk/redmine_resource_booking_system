@@ -15,6 +15,21 @@
 
     return "hsl(" + hue + ",60%,50%)";
 }
+function getResourceTextColor(resourceId) {
+
+    var id = parseInt(resourceId, 10);
+
+    if (isNaN(id))
+        id = 0;
+
+    var hue = (id * 137.508) % 360;
+
+    if (hue >= 35 && hue <= 195) {
+        return "#000000";
+    }
+
+    return "#ffffff";
+}
   //var baseUrl =  "http://localhost:3000"
   
 jQuery(document).ready(function($) {
@@ -117,6 +132,7 @@ jQuery(document).ready(function($) {
 
               
 			  var event_color = getResourceColor(resource_id);  
+			  var event_text_color = getResourceTextColor(resource_id);
               //var event_color = '#1905b2';  //dark blue/
               
               //if (event[i].status.id == issue_status_id_book) { event_color = '#227c27' ; }  //green
@@ -136,6 +152,7 @@ jQuery(document).ready(function($) {
 							id: event[i].id,
 							booking_text: text,
 							color: event_color,
+					        textColor: event_text_color,
 							status_id: event[i].status.id
 				});
 			  }
@@ -282,7 +299,8 @@ jQuery(document).ready(function($) {
 	          	due_date: booking_end_date.format('YYYY-MM-DD'),
 	          	custom_field_values: ajaxData_custom_field_values,
 	          	assigned_to_id: $('#selected_assigned_to').val(),
-	          	status_id: $('#selected_issue_status').val()
+	          	//status_id: $('#selected_issue_status').val()
+				status_id: issue_status_id_book
 	          }};
               
               
@@ -298,7 +316,8 @@ jQuery(document).ready(function($) {
 	          	due_date: booking_end_date.format('YYYY-MM-DD'),
 	          	custom_field_values: ajaxData_custom_field_values,
 	          	assigned_to_id: $('#selected_assigned_to').val(),
-	          	status_id: $('#selected_issue_status').val()
+	          	//status_id: $('#selected_issue_status').val()
+				status_id: issue_status_id_book
 	          }};
           }
 		  console.log("ajax通信 %s %s", action, url);
@@ -506,7 +525,7 @@ jQuery(document).ready(function($) {
 				  $('#selected_assigned_to').val(calEvent.assigned_to_id);
 				  $('#booking_text').val(calEvent.booking_text);
 
-					$('#selected_issue_status').val(calEvent.status_id);
+					//$('#selected_issue_status').val(calEvent.status_id);
 					
 					
 					//$('#delete_booking').hide();  // 台帳管理の安全性から当面隠す
@@ -553,7 +572,7 @@ jQuery(document).ready(function($) {
                   $('#end_time').val(date.format('HH:mm'));
                   $('#selected_assigned_to').val($('#author_id').val());
                   
-                  $('#selected_issue_status').val(1);
+                  //$('#selected_issue_status').val(1);
                   
                   $('.rrbs_saveModal').dialog({
                       title : langCreateEvent,
