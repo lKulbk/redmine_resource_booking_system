@@ -3,6 +3,18 @@
   var long_date_format_datepicker = 'mm/dd/yy';
   var eventsJSON = [];
   var event_json_text =[];
+
+  function getResourceColor(resourceId) {
+
+    var id = parseInt(resourceId, 10);
+
+    if (isNaN(id))
+        id = 0;
+
+    var hue = (id * 137.508) % 360;
+
+    return "hsl(" + hue + ",60%,50%)";
+}
   //var baseUrl =  "http://localhost:3000"
   
 jQuery(document).ready(function($) {
@@ -103,12 +115,13 @@ jQuery(document).ready(function($) {
 				text = '';
 			  }
 
-                  
-              var event_color = '#1905b2';  //dark blue
               
-              if (event[i].status.id == issue_status_id_book) { event_color = '#227c27' ; }  //green
-              if (event[i].status.id == issue_status_id_progress) { event_color = '#ffd43a' ; }  //yellow
-              if (event[i].status.id == issue_status_id_complete) { event_color = '#636363' ; }  //grey
+			  var event_color = getResourceColor(resource_id);  
+              //var event_color = '#1905b2';  //dark blue/
+              
+              //if (event[i].status.id == issue_status_id_book) { event_color = '#227c27' ; }  //green
+              //if (event[i].status.id == issue_status_id_progress) { event_color = '#ffd43a' ; }  //yellow
+              //if (event[i].status.id == issue_status_id_complete) { event_color = '#636363' ; }  //grey
 			  
 			  
 			  if (event[i].status.id != issue_status_id_cancel) {   //not displayed
