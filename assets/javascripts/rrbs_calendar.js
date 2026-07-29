@@ -3,6 +3,22 @@
   var long_date_format_datepicker = 'mm/dd/yy';
   var eventsJSON = [];
   var event_json_text =[];
+  var rrbsPlanYear = new Date().getFullYear();
+
+  var rrbsMonthNames = [
+    'Январь',
+    'Февраль',
+    'Март',
+    'Апрель',
+    'Май',
+    'Июнь',
+    'Июль',
+    'Август',
+    'Сентябрь',
+    'Октябрь',
+    'Ноябрь',
+    'Декабрь'
+  ];
 
   function getResourceColor(resourceId) {
 
@@ -54,8 +70,12 @@ jQuery(document).ready(function($) {
 					
 					// limit 以下のときはoffset設定して再取得
 					if (res.total_count > (offset + 100)) { getEventsJSON(offset + 100, moment); } 
-					else { filterEvents(GetCookie_array('r_selected')); }
+					else { filterEvents(GetCookie_array('r_selected'));
+				    if ($('#rrbs_year_plan').is(':visible')) {
+                    rrbsRenderYearPlan(rrbsPlanYear);}	 
+						 }
 					 },
+				
 					
 					
 				error: function(){ console.log("ajax失敗 %s", url);  }
@@ -175,6 +195,10 @@ jQuery(document).ready(function($) {
 		document.cookie = 'r_selected=[' + r_selected + ']';
 		
 			filterEvents(r_selected);
+
+		   if ($('#rrbs_year_plan').is(':visible')) {
+               rrbsRenderYearPlan(rrbsPlanYear);
+           }
 	});
 	
 	var load_checkbox = function(){
@@ -423,6 +447,340 @@ jQuery(document).ready(function($) {
 		return result;
 	}
 	
+	function rrbsGetWeekNumber(date) {
+    var currentDate = new Date(
+        Date.UTC(
+            date.getFullYear(),
+            date.getMonth(),
+            date.getDate()
+        )
+    );
+
+    var dayNumber = currentDate.getUTCDay();
+
+    if (dayNumber === 0) {
+        dayNumber = 7;
+    }
+
+    currentDate.setUTCDate(
+        currentDate.getUTCDate() + 4 - dayNumber
+    );
+
+    var yearStart = new Date(
+        Date.UTC(currentDate.getUTCFullYear(), 0, 1)
+    );
+
+    return Math.ceil(
+        (
+            (
+                currentDate - yearStart
+            ) / 86400000 + 1
+        ) / 7
+    );
+}
+	function rrbsParseDate(dateValue) {
+    if (!dateValue) {
+        return null;
+    }
+
+    /*
+     * Redmine обычно возвращает YYYY-MM-DD.
+     * Разбираем вручную, чтобы браузер не сдвинул дату
+     * из-за часового пояса.
+     */
+    var dateParts = String(dateValue)
+        .substring(0, 10)
+        .split('-');
+
+    if (dateParts.length !== 3) {
+        return null;
+    }
+
+    return new Date(
+        parseInt(dateParts[0], 10),
+        parseInt(dateParts[1], 10) - 1,
+        parseInt(dateParts[2], 10)
+    );
+}
+	function rrbsEventIntersectsYear(event, year) {
+    var startDate = rrbsParseDate(event.start);
+    var endDate = rrbsParseDate(event.end);
+
+    if (!startDate || !endDate) {
+        return false;
+    }
+
+    var yearStart = new Date(year, 0, 1);
+    var yearEnd = new Date(year, 11, 31);
+
+    return startDate <= yearEnd && endDate >= yearStart;
+}
+	function rrbsGetResourceEvents(resourceId, year) {
+    if (
+        !eventsJSON ||
+        !eventsJSON.events ||
+        !Array.isArray(eventsJSON.events)
+    ) {
+        return [];
+    }
+
+    return eventsJSON.events.filter(function(event) {
+        return (
+            String(event.resource_id) === String(resourceId) &&
+            rrbsEventIntersectsYear(event, year)
+        );
+    });
+}
+	function rrbsBuildMonthsHeader() {
+    var monthWeeks = [
+        5, 4, 4, 5,
+        4, 4, 5, 4,
+        4, 5, 4, 4
+    ];
+
+    var html = '';
+
+    html += '<div class="rrbs-plan-months-row">';
+    html += '<div class="rrbs-plan-name-header">Сотрудник</div>';
+    html += '<div class="rrbs-plan-months">';
+
+    for (var month = 0; month < 12; month++) {
+        html += '<div class="rrbs-plan-month" ' +
+            'style="grid-column: span ' + monthWeeks[month] + ';">';
+
+        html += rrbsMonthNames[month];
+
+        html += '</div>';
+    }
+
+    html += '</div>';
+    html += '</div>';
+
+    return html;
+}
+	function rrbsBuildWeeksHeader() {
+    var html = '';
+
+    html += '<div class="rrbs-plan-weeks-row">';
+    html += '<div class="rrbs-plan-name-header"></div>';
+    html += '<div class="rrbs-plan-weeks">';
+
+    for (var week = 1; week <= 52; week++) {
+        html += '<div class="rrbs-plan-week-number">';
+        html += week;
+        html += '</div>';
+    }
+
+    html += '</div>';
+    html += '</div>';
+
+    return html;
+}
+	function rrbsBuildResourcePlanRow(resource, year) {
+    var resourceName = resource[0];
+    var resourceId = resource[1];
+
+    var resourceEvents = rrbsGetResourceEvents(
+        resourceId,
+        year
+    );
+
+    var html = '';
+
+    html += '<div class="rrbs-plan-resource-row">';
+
+    html += '<div class="rrbs-plan-resource-name">';
+    html += $('<div>').text(resourceName).html();
+    html += '</div>';
+
+    html += '<div class="rrbs-plan-timeline">';
+
+    /*
+     * Сетка из 52 недель.
+     */
+    for (var week = 1; week <= 52; week++) {
+        html += '<div class="rrbs-plan-week-cell"></div>';
+    }
+
+    /*
+     * Полосы отпусков.
+     */
+    resourceEvents.forEach(function(event) {
+        var startDate = rrbsParseDate(event.start);
+        var endDate = rrbsParseDate(event.end);
+
+        if (!startDate || !endDate) {
+            return;
+        }
+
+        var yearStart = new Date(year, 0, 1);
+        var yearEnd = new Date(year, 11, 31);
+
+        /*
+         * Обрезаем отпуск границами выбранного года.
+         */
+        if (startDate < yearStart) {
+            startDate = yearStart;
+        }
+
+        if (endDate > yearEnd) {
+            endDate = yearEnd;
+        }
+
+        var startWeek = rrbsGetWeekNumber(startDate);
+        var endWeek = rrbsGetWeekNumber(endDate);
+
+        /*
+         * Даты конца декабря могут попасть в неделю №1
+         * следующего года.
+         */
+        if (
+            endDate.getMonth() === 11 &&
+            endWeek === 1
+        ) {
+            endWeek = 52;
+        }
+
+        if (startWeek < 1) {
+            startWeek = 1;
+        }
+
+        if (startWeek > 52) {
+            startWeek = 52;
+        }
+
+        if (endWeek < startWeek) {
+            endWeek = startWeek;
+        }
+
+        if (endWeek > 52) {
+            endWeek = 52;
+        }
+
+        var durationWeeks = endWeek - startWeek + 1;
+
+        var eventColor = event.color || '#3a87ad';
+        var eventTextColor = event.textColor || '#ffffff';
+
+        var eventTitle =
+            (event.assigned_to || resourceName) +
+            ': ' +
+            moment(startDate).format('DD.MM.YYYY') +
+            ' – ' +
+            moment(endDate).format('DD.MM.YYYY');
+
+        html += '<div class="rrbs-plan-event"';
+
+        html += ' style="' +
+            'grid-column: ' + startWeek +
+            ' / span ' + durationWeeks + ';' +
+            'background-color: ' + eventColor + ';' +
+            'color: ' + eventTextColor + ';"';
+
+        html += ' data-event-id="' + event.id + '"';
+
+        html += ' title="' +
+            $('<div>').text(eventTitle).html() +
+            '">';
+
+        /*
+         * На коротких отпусках текст может не поместиться.
+         * Поэтому можно вывести только имя или оставить пусто.
+         */
+        html += $('<div>')
+            .text(event.assigned_to || resourceName)
+            .html();
+
+        html += '</div>';
+    });
+
+    html += '</div>';
+    html += '</div>';
+
+    return html;
+}
+	function rrbsRenderYearPlan(year) {
+    rrbsPlanYear = year;
+
+    $('#rrbs_plan_year').text(year);
+
+    var html = '';
+
+    html += '<div class="rrbs-plan-wrapper">';
+
+    html += rrbsBuildMonthsHeader();
+    html += rrbsBuildWeeksHeader();
+
+    for (var i = 0; i < rrbs_resources.length; i++) {
+        html += rrbsBuildResourcePlanRow(
+            rrbs_resources[i],
+            year
+        );
+    }
+
+    html += '</div>';
+
+    $('#rrbs_year_plan').html(html);
+
+    $('#rrbs_year_plan')
+        .off('click', '.rrbs-plan-event')
+        .on('click', '.rrbs-plan-event', function() {
+            var eventId = $(this).data('event-id');
+
+            if (!eventId) {
+                return;
+            }
+
+            window.location.href =
+                baseUrl + '/issues/' + eventId;
+        });
+}
+	$('#rrbs_show_calendar').click(function() {
+    $('#rrbs_year_plan').hide();
+    $('#rrbs_year_controls').hide();
+
+    $('#calendar').show();
+
+    $('#calendar').fullCalendar('render');
+});
+
+$('#rrbs_show_year_plan').click(function() {
+    $('#calendar').hide();
+
+    $('#rrbs_year_plan').show();
+
+    $('#rrbs_year_controls').css(
+        'display',
+        'inline-flex'
+    );
+
+	getEventsJSON(
+    0,
+    rrbsPlanYear + '-01-01'
+);
+});
+	$('#rrbs_prev_year').click(function() {
+    rrbsPlanYear--;
+
+    $('#rrbs_plan_year').text(rrbsPlanYear);
+
+    getEventsJSON(
+        0,
+        rrbsPlanYear + '-01-01'
+    );
+});
+
+$('#rrbs_next_year').click(function() {
+    rrbsPlanYear++;
+
+    $('#rrbs_plan_year').text(rrbsPlanYear);
+
+    getEventsJSON(
+        0,
+        rrbsPlanYear + '-01-01'
+    );
+});
+	
 	
 	// fullcalendarの基本設定
 	var loadCalendar = function() {
@@ -642,7 +1000,9 @@ jQuery(document).ready(function($) {
 		
 		//cookie保存
 		document.cookie = 'moment=' + moment_now + '; max-age=300';
-	
-	load_checkbox();
+
 	loadCalendar();		// 描画
+	load_checkbox();
+	
+	$('#rrbs_plan_year').text(rrbsPlanYear);
 }); 
