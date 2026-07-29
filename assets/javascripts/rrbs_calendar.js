@@ -427,6 +427,7 @@ jQuery(document).ready(function($) {
 	// fullcalendarの基本設定
 	var loadCalendar = function() {
 		$('#calendar').fullCalendar({
+			locale: current_lang.split('-')[0].split('_')[0],
 			header: {
 				left: 'prev,next today',
 				center: 'title',
@@ -445,7 +446,7 @@ jQuery(document).ready(function($) {
 			},
 			
 			// 曜日表示の設定
-			firstDay: 0, //週表示の始まり。0:日曜。TODO:redmine全体設定とってこれると良い
+			firstDay: 1, //週表示の始まり。0:日曜。TODO:redmine全体設定とってこれると良い
 			
 			
 			allDaySlot: false,  // 終日スロットを表示
