@@ -1,22 +1,4 @@
 <br/>
-<h2><%= l(:label_rrbs_progress_index) %></h2>
-<% @rrbs_resources.each do |r| %>
-<% i = 0 %>
-  
-    <% @events_progress.each do |event| %>
-      <% r_id = event.custom_field_value(@rrbs_setting.custom_field_id_room) %>
-      <% if r_id.to_i == r[1].to_i %>
-        <% if i == 0 then %><h3><%= r[0] %></h3><% else %><% end %>
-        <%= event.assigned_to %> <%= event.start_date %> - <%= event.due_date %><br/>
-        <% i = i+1 %>
-      <% end %>
-    <% end %>
-
-<% end %>
-
-<br/>
-<br/>
-<br/>
 
 <h2><%= l(:label_rrbs_book_index) %></h2>
 <% @rrbs_resources.each do |r| %>
