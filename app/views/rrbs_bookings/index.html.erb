@@ -72,7 +72,9 @@
 <%= javascript_include_tag 'rrbs_calendar.js',:plugin => 'redmine_resource_booking_system' %>
 
 
-
+ <% content_for :sidebar do %> 
+   <%= render :partial => 'sidebar' %>
+ <% end %>
 
   <div id="rrbs_left">
     <div id="rrbs_resource">
