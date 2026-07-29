@@ -45,25 +45,7 @@
         &nbsp [Optional] This item must be a type of Text Issue-Customfield.
       </p>
     
-    <% status_ids = IssueStatus.all %>
-      <p>
-        <%= label_tag('settings[issue_status_id_book]', l(:label_rrbs_issue_status_id_book)) %>
-        <%= select_tag('settings[issue_status_id_book]', options_for_select(status_ids.collect{|c| [c.name, c.id]}, @rrbs_setting['issue_status_id_book'])) %>
-      </p>
-      <p>
-        <%= label_tag('settings[issue_status_id_progress]', l(:label_rrbs_issue_status_id_progress)) %>
-        <%= select_tag('settings[issue_status_id_progress]', options_for_select(status_ids.collect{|c| [c.name, c.id]}, @rrbs_setting['issue_status_id_progress'])) %>
-      </p>
-      <p>
-        <%= label_tag('settings[issue_status_id_complete]', l(:label_rrbs_issue_status_id_complete)) %>
-        <%= select_tag('settings[issue_status_id_complete]', options_for_select(status_ids.collect{|c| [c.name, c.id]}, @rrbs_setting['issue_status_id_complete'])) %>
-      </p>
-      <p>
-        <%= label_tag('settings[issue_status_id_cancel]', l(:label_rrbs_issue_status_id_cancel)) %>
-        <%= select_tag('settings[issue_status_id_cancel]', options_for_select(status_ids.collect{|c| [c.name, c.id]}, @rrbs_setting['issue_status_id_cancel'])) %>
-      </p>
-
-
+    
     <p>
       <%= label_tag('settings[footer_message]', l(:label_rrbs_footer_message)) %>
       <%= text_area_tag('settings[footer_message]', @rrbs_setting['footer_message']) %>
