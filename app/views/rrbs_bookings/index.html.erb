@@ -74,10 +74,6 @@
 
 
 
-  <% content_for :sidebar do %>
-    <%= render :partial => 'sidebar' %>
-  <% end %>
-
   <div id="rrbs_left">
     <div id="rrbs_resource">
       <%= label_tag("label_rrbs_resource", l(:label_rrbs_resource)) %><br/>
@@ -85,12 +81,6 @@
         <%= check_box_tag "rrbs_resource_checkbox", r[1], false, {:id => "rrbs_resource_checkbox_#{r[1]}", :multiple => true } %><%= label_tag "rrbs_resource_checkbox_#{r[1]}", r[0] %><br/>
       <% end %>
     </div>
-	<br/>
-	<div id="rrbs_status">
-      <div id="status_name_book"><p><%= l(:label_rrbs_status_name_book) %></p></div>
-      <div id="status_name_progress"><p><%= l(:label_rrbs_status_name_progress) %></p></div>
-      <div id="status_name_complete"><p><%= l(:label_rrbs_status_name_complete) %></p></div>
-	</div>
   </div>
 
   <div id='rrbs_right'>
@@ -127,10 +117,7 @@
             <% if @rrbs_text.present? %>
 			  <%= label_tag(:booking_text, @rrbs_text) %> <%= text_field_tag("booking_text") %><br/>
 		    <% end %>
-		<div id="selected_issue_status_container">
-	        <%= label_tag("selected_issue_status", l(:label_rrbs_set_status)) %><%= select_tag "selected_issue_status", options_for_select(@issue_status_ids) %><br/>
-	    </div>
-		
+
     </div>
     <%= submit_tag l(:label_rrbs_save), :type => 'button', :id=>"save_booking" %>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<%= submit_tag l(:label_rrbs_delete), :type => 'button', :id=>"delete_booking" %>
     
