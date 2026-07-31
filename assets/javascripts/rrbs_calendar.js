@@ -711,12 +711,28 @@ jQuery(document).ready(function($) {
     html += rrbsBuildMonthsHeader();
     html += rrbsBuildWeeksHeader();
 
-    for (var i = 0; i < rrbs_resources.length; i++) {
-        html += rrbsBuildResourcePlanRow(
-            rrbs_resources[i],
-            year
-        );
-    }
+	var selectedResources = GetCookie_array('r_selected');
+
+	for (var i = 0; i < rrbs_resources.length; i++) {
+    	var resource = rrbs_resources[i];
+    	var resourceId = String(resource[1]);
+
+    /*
+     * Если слева выбраны сотрудники,
+     * показываем только выбранных.
+     *
+     * Если не выбрана ни одна галочка,
+     * строки сотрудников не показываем.
+     */
+    	if (selectedResources.indexOf(resourceId) === -1) {
+        continue;
+    	}
+
+    	html += rrbsBuildResourcePlanRow(
+        	resource,
+        	year
+    	);
+	}
 
     html += '</div>';
 
