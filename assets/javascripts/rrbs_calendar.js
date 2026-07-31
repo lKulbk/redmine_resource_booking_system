@@ -805,7 +805,7 @@ $('#rrbs_next_year').click(function() {
 			header: {
 				left: 'prev,next today',
 				center: 'title',
-				right: 'month,agendaWeek'
+				right: 'month'
 				// オプション:  month,basicWeek,basicDay,agendaWeek,agendaDay,listWeek
 			},
 			defaultView: 'month',
