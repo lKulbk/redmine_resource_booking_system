@@ -153,115 +153,164 @@ label, input[type='checkbox'] {
   cursor: pointer;
 }
 
-.rrbs-year-plan-toolbar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    margin: 10px 0;
-}
-
-#rrbs_year_controls {
-    align-items: center;
-    gap: 10px;
-    margin-left: 15px;
-}
-
-#rrbs_plan_year {
-    min-width: 45px;
-    text-align: center;
-    font-size: 16px;
-}
+/* =========================================================
+   Годовой план — оформление в стиле FullCalendar
+   ========================================================= */
 
 #rrbs_year_plan {
     width: 100%;
     overflow-x: auto;
-    border: 1px solid #d7d7d7;
+    overflow-y: visible;
+
+    margin-top: 10px;
+
+    background: #ffffff;
+    border: 1px solid #dddddd;
+
+    box-sizing: border-box;
 }
 
+/*
+ * Общая ширина:
+ * 220 px — сотрудник;
+ * 52 × 24 px — недели.
+ */
 .rrbs-plan-wrapper {
-    min-width: 1250px;
+    min-width: 1468px;
     background: #ffffff;
 }
 
+/* Каждая строка состоит из имени и временной шкалы. */
 .rrbs-plan-months-row,
 .rrbs-plan-weeks-row,
 .rrbs-plan-resource-row {
     display: grid;
-    grid-template-columns: 220px 1fr;
+    grid-template-columns: 220px minmax(1248px, 1fr);
 }
 
+/* Левая колонка. */
 .rrbs-plan-name-header,
 .rrbs-plan-resource-name {
     box-sizing: border-box;
-    padding: 6px 8px;
+
+    padding: 0 8px;
 
     background: #ffffff;
+    color: #333333;
 
-    border-right: 1px solid #c7c7c7;
-    border-bottom: 1px solid #d7d7d7;
+    border-right: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+
+    font-family: Arial, sans-serif;
+    font-size: 12px;
 }
 
+/* Заголовок "Сотрудник". */
 .rrbs-plan-name-header {
+    min-height: 30px;
+    line-height: 30px;
+
     font-weight: bold;
+    text-align: left;
+
+    background: #f5f5f5;
 }
 
+/* Имя сотрудника в строке. */
 .rrbs-plan-resource-name {
-    min-height: 32px;
-    line-height: 20px;
+    min-height: 26px;
+    line-height: 26px;
+
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
+/* Сетка месяцев, недель и строк сотрудников. */
 .rrbs-plan-months,
 .rrbs-plan-weeks,
 .rrbs-plan-timeline {
     display: grid;
-    grid-template-columns: repeat(52, minmax(20px, 1fr));
+    grid-template-columns: repeat(52, minmax(24px, 1fr));
 }
 
+/* Месяцы — аналог заголовков FullCalendar. */
 .rrbs-plan-month {
     box-sizing: border-box;
 
     height: 30px;
     line-height: 30px;
 
-    text-align: center;
+    padding: 0 3px;
+
+    background: #f5f5f5;
+    color: #333333;
+
+    border-right: 1px solid #dddddd;
+    border-bottom: 1px solid #dddddd;
+
+    font-family: Arial, sans-serif;
+    font-size: 12px;
     font-weight: bold;
+    text-align: center;
 
-    background: #eeeeee;
-
-    border-right: 1px solid #b7b7b7;
-    border-bottom: 1px solid #c7c7c7;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
+/* Номера недель. */
 .rrbs-plan-week-number {
     box-sizing: border-box;
 
-    height: 24px;
-    line-height: 24px;
+    height: 26px;
+    line-height: 26px;
 
-    text-align: center;
+    background: #fafafa;
+    color: #666666;
+
+    border-right: 1px solid #e5e5e5;
+    border-bottom: 1px solid #dddddd;
+
+    font-family: Arial, sans-serif;
     font-size: 10px;
-
-    border-right: 1px solid #e0e0e0;
-    border-bottom: 1px solid #d7d7d7;
+    font-weight: normal;
+    text-align: center;
 }
 
+/* Шкала сотрудника. */
 .rrbs-plan-timeline {
     position: relative;
-    min-height: 32px;
+
+    min-height: 26px;
+    background: #ffffff;
 }
 
+/* Обычная ячейка недели. */
 .rrbs-plan-week-cell {
     grid-row: 1;
 
-    min-width: 20px;
-    height: 32px;
-
     box-sizing: border-box;
 
+    min-width: 24px;
+    height: 26px;
+
+    background: #ffffff;
+
     border-right: 1px solid #eeeeee;
-    border-bottom: 1px solid #eeeeee;
+    border-bottom: 1px solid #dddddd;
 }
 
+/*
+ * Лёгкая подсветка каждой второй недели.
+ * Она делает длинную годовую шкалу удобнее,
+ * но визуально остаётся близкой к FullCalendar.
+ */
+.rrbs-plan-week-cell:nth-child(even) {
+    background: #fcfcfc;
+}
+
+/* Полоса отпуска — оформление как событие FullCalendar. */
 .rrbs-plan-event {
     grid-row: 1;
 
@@ -271,17 +320,98 @@ label, input[type='checkbox'] {
 
     box-sizing: border-box;
 
-    height: 22px;
-    line-height: 22px;
+    height: 18px;
+    line-height: 16px;
 
-    padding: 0 4px;
+    margin: 0 1px;
+    padding: 1px 4px;
 
+    border: 1px solid rgba(0, 0, 0, 0.12);
     border-radius: 3px;
 
-    overflow: hidden;
+    font-family: Arial, sans-serif;
+    font-size: 11px;
+    font-weight: normal;
+
     white-space: nowrap;
+    overflow: hidden;
     text-overflow: ellipsis;
 
     cursor: pointer;
-    font-size: 11px;
 }
+
+/* Поведение при наведении, аналогичное событию календаря. */
+.rrbs-plan-event:hover {
+    filter: brightness(0.94);
+    text-decoration: none;
+}
+
+/* Строка сотрудника при наведении. */
+.rrbs-plan-resource-row:hover .rrbs-plan-resource-name,
+.rrbs-plan-resource-row:hover .rrbs-plan-week-cell {
+    background-color: #f7f7f7;
+}
+
+/* Панель кнопок над годовым планом. */
+.rrbs-year-plan-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin: 10px 0;
+}
+
+/* Кнопки в стиле стандартных кнопок Redmine/FullCalendar. */
+.rrbs-year-plan-toolbar button {
+    box-sizing: border-box;
+
+    min-height: 28px;
+    padding: 3px 10px;
+
+    background: #ffffff;
+    color: #333333;
+
+    border: 1px solid #cccccc;
+    border-radius: 3px;
+
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.rrbs-year-plan-toolbar button:hover {
+    background: #eeeeee;
+}
+
+/* Кнопки выбора года. */
+#rrbs_year_controls {
+    display: none;
+    align-items: center;
+    gap: 8px;
+
+    margin-left: 12px;
+}
+
+#rrbs_plan_year {
+    display: inline-block;
+
+    min-width: 50px;
+
+    color: #333333;
+
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.rrbs-plan-name-header,
+.rrbs-plan-resource-name {
+    position: sticky;
+    left: 0;
+    z-index: 4;
+}
+
+.rrbs-plan-months-row .rrbs-plan-name-header,
+.rrbs-plan-weeks-row .rrbs-plan-name-header {
+    z-index: 6;
+}
+
