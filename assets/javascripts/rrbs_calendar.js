@@ -4,6 +4,7 @@
   var eventsJSON = [];
   var event_json_text =[];
   var rrbsPlanYear = new Date().getFullYear();
+  var rrbsPlanMonth = new Date().getMonth();
 
   var rrbsMonthNames = [
     'Январь',
@@ -70,9 +71,15 @@ jQuery(document).ready(function($) {
 					
 					// limit 以下のときはoffset設定して再取得
 					if (res.total_count > (offset + 100)) { getEventsJSON(offset + 100, moment); } 
-					else { filterEvents(GetCookie_array('r_selected'));
+				    else {
+    					filterEvents(GetCookie_array('r_selected'));
+
+    					if ($('#rrbs_year_plan').is(':visible')) {
+        					rrbsRenderYearPlan(rrbsPlanYear);
+    					}
+
 				    if ($('#rrbs_year_plan').is(':visible')) {
-                    rrbsRenderYearPlan(rrbsPlanYear);}	 
+                    rrbsRenderYearPlan(rrbsPlanYear, rrbsPlanMonth);}	 
 						 }
 					 },
 				
@@ -199,6 +206,13 @@ jQuery(document).ready(function($) {
 		   if ($('#rrbs_year_plan').is(':visible')) {
                rrbsRenderYearPlan(rrbsPlanYear);
            }
+
+		   if ($('#rrbs_month_plan').is(':visible')) {
+              rrbsRenderMonthPlan(
+                  rrbsPlanYear,
+                  rrbsPlanMonth
+           );
+       }
 	});
 	
 	var load_checkbox = function(){
@@ -502,6 +516,524 @@ jQuery(document).ready(function($) {
         parseInt(dateParts[2], 10)
     );
 }
+   function rrbsEventIntersectsMonth(event, year, month) {
+
+    var startDate = rrbsParseDate(event.start);
+    var endDate = rrbsParseDate(event.end);
+
+    if (!startDate || !endDate) {
+        return false;
+    }
+
+    var monthStart = new Date(
+        year,
+        month,
+        1
+    );
+
+    var monthEnd = new Date(
+        year,
+        month + 1,
+        0
+    );
+
+    return (
+        startDate <= monthEnd &&
+        endDate >= monthStart
+    );
+}
+
+
+function rrbsGetResourceEventsForMonth(
+    resourceId,
+    year,
+    month
+) {
+
+    if (
+        !eventsJSON ||
+        !eventsJSON.events ||
+        !Array.isArray(eventsJSON.events)
+    ) {
+        return [];
+    }
+
+    return eventsJSON.events.filter(function(event) {
+
+        return (
+            String(event.resource_id) ===
+                String(resourceId) &&
+
+            rrbsEventIntersectsMonth(
+                event,
+                year,
+                month
+            )
+        );
+    });
+}
+
+
+function rrbsBuildMonthHeader(
+    year,
+    month
+) {
+
+    var daysInMonth = new Date(
+        year,
+        month + 1,
+        0
+    ).getDate();
+
+    var html = '';
+
+    html +=
+        '<div class="rrbs-month-header-row">';
+
+    html +=
+        '<div class="rrbs-month-name-header">' +
+        'Сотрудник' +
+        '</div>';
+
+    html +=
+        '<div class="rrbs-month-days-header" ' +
+        'style="grid-template-columns: ' +
+        'repeat(' + daysInMonth + ', minmax(32px, 1fr));">';
+
+    for (
+        var day = 1;
+        day <= daysInMonth;
+        day++
+    ) {
+
+        var date = new Date(
+            year,
+            month,
+            day
+        );
+
+        var dayOfWeek = date.getDay();
+
+        var dayName = [
+            'Вс',
+            'Пн',
+            'Вт',
+            'Ср',
+            'Чт',
+            'Пт',
+            'Сб'
+        ][dayOfWeek];
+
+        var weekendClass = '';
+
+        if (
+            dayOfWeek === 0 ||
+            dayOfWeek === 6
+        ) {
+            weekendClass =
+                ' rrbs-month-weekend';
+        }
+
+        html +=
+            '<div class="' +
+            'rrbs-month-day-header' +
+            weekendClass +
+            '">';
+
+        html += day;
+
+        html +=
+            '<span>' +
+            dayName +
+            '</span>';
+
+        html +=
+            '</div>';
+    }
+
+    html += '</div>';
+
+    html += '</div>';
+
+    return html;
+}
+
+
+function rrbsBuildMonthResourceRow(
+    resource,
+    year,
+    month
+) {
+
+    var resourceName = resource[0];
+    var resourceId = resource[1];
+
+    var daysInMonth = new Date(
+        year,
+        month + 1,
+        0
+    ).getDate();
+
+    var resourceEvents =
+        rrbsGetResourceEventsForMonth(
+            resourceId,
+            year,
+            month
+        );
+
+    var monthStart = new Date(
+        year,
+        month,
+        1
+    );
+
+    var monthEnd = new Date(
+        year,
+        month + 1,
+        0
+    );
+
+    var html = '';
+
+    html +=
+        '<div class="rrbs-month-resource-row">';
+
+
+    /*
+     * Имя сотрудника.
+     */
+    html +=
+        '<div class="' +
+        'rrbs-month-resource-name' +
+        '">';
+
+    html +=
+        $('<div>')
+            .text(resourceName)
+            .html();
+
+    html +=
+        '</div>';
+
+
+    /*
+     * Временная шкала.
+     */
+    html +=
+        '<div class="' +
+        'rrbs-month-timeline' +
+        '" style="' +
+        'grid-template-columns: ' +
+        'repeat(' +
+        daysInMonth +
+        ', minmax(32px, 1fr));' +
+        '">';
+
+
+    /*
+     * Ячейки дней.
+     */
+    for (
+        var day = 1;
+        day <= daysInMonth;
+        day++
+    ) {
+
+        var currentDate = new Date(
+            year,
+            month,
+            day
+        );
+
+        var dayOfWeek =
+            currentDate.getDay();
+
+        var weekendClass = '';
+
+        if (
+            dayOfWeek === 0 ||
+            dayOfWeek === 6
+        ) {
+            weekendClass =
+                ' rrbs-month-weekend';
+        }
+
+        html +=
+            '<div class="' +
+            'rrbs-month-day-cell' +
+            weekendClass +
+            '"></div>';
+    }
+
+
+    /*
+     * Полосы отпусков.
+     */
+    resourceEvents.forEach(function(event) {
+
+        var startDate =
+            rrbsParseDate(event.start);
+
+        var endDate =
+            rrbsParseDate(event.end);
+
+        if (
+            !startDate ||
+            !endDate
+        ) {
+            return;
+        }
+
+
+        /*
+         * Обрезаем отпуск границами
+         * текущего месяца.
+         */
+        if (
+            startDate < monthStart
+        ) {
+            startDate =
+                new Date(monthStart);
+        }
+
+        if (
+            endDate > monthEnd
+        ) {
+            endDate =
+                new Date(monthEnd);
+        }
+
+
+        /*
+         * Номер первого дня отпуска
+         * в выбранном месяце.
+         */
+        var startDay =
+            startDate.getDate();
+
+
+        /*
+         * Номер последнего дня отпуска.
+         */
+        var endDay =
+            endDate.getDate();
+
+
+        var durationDays =
+            endDay -
+            startDay +
+            1;
+
+
+        var eventColor =
+            event.color ||
+            '#3a87ad';
+
+
+        var eventTextColor =
+            event.textColor ||
+            '#ffffff';
+
+
+        var eventTitle =
+            (event.assigned_to ||
+                resourceName) +
+
+            ': ' +
+
+            moment(startDate)
+                .format('DD.MM.YYYY') +
+
+            ' – ' +
+
+            moment(endDate)
+                .format('DD.MM.YYYY');
+
+
+        html +=
+            '<div class="' +
+            'rrbs-month-event' +
+            '"';
+
+
+        html +=
+            ' style="' +
+
+            'grid-column: ' +
+            startDay +
+
+            ' / span ' +
+            durationDays +
+
+            ';' +
+
+            'background-color: ' +
+            eventColor +
+
+            ';' +
+
+            'color: ' +
+            eventTextColor +
+
+            ';"';
+
+
+        html +=
+            ' data-event-id="' +
+            event.id +
+            '"';
+
+
+        html +=
+            ' title="' +
+
+            $('<div>')
+                .text(eventTitle)
+                .html() +
+
+            '">';
+
+
+        html +=
+            $('<div>')
+                .text(
+                    event.assigned_to ||
+                    resourceName
+                )
+                .html();
+
+
+        html +=
+            '</div>';
+    });
+
+
+    html +=
+        '</div>';
+
+    html +=
+        '</div>';
+
+    return html;
+}
+
+
+function rrbsRenderMonthPlan(
+    year,
+    month
+) {
+
+    rrbsPlanYear = year;
+
+    rrbsPlanMonth = month;
+
+
+    var html = '';
+
+
+    html +=
+        '<div class="' +
+        'rrbs-month-plan-wrapper' +
+        '">';
+
+
+    /*
+     * Заголовок с днями месяца.
+     */
+    html +=
+        rrbsBuildMonthHeader(
+            year,
+            month
+        );
+
+
+    /*
+     * Выбранные сотрудники.
+     */
+    var selectedResources =
+        GetCookie_array(
+            'r_selected'
+        );
+
+
+    for (
+        var i = 0;
+        i < rrbs_resources.length;
+        i++
+    ) {
+
+        var resource =
+            rrbs_resources[i];
+
+        var resourceId =
+            String(resource[1]);
+
+
+        /*
+         * Показываем только сотрудников,
+         * отмеченных галочками.
+         */
+        if (
+            selectedResources.indexOf(
+                resourceId
+            ) === -1
+        ) {
+            continue;
+        }
+
+
+        html +=
+            rrbsBuildMonthResourceRow(
+                resource,
+                year,
+                month
+            );
+    }
+
+
+    html +=
+        '</div>';
+
+
+    $('#rrbs_month_plan')
+        .html(html);
+
+
+    /*
+     * Клик по отпуску.
+     *
+     * Пока открываем задачу Redmine,
+     * так же, как сейчас
+     * работает годовой план.
+     */
+    $('#rrbs_month_plan')
+        .off(
+            'click',
+            '.rrbs-month-event'
+        )
+        .on(
+            'click',
+            '.rrbs-month-event',
+            function() {
+
+                var eventId =
+                    $(this)
+                        .data(
+                            'event-id'
+                        );
+
+                if (!eventId) {
+                    return;
+                }
+
+                window.location.href =
+                    baseUrl +
+                    '/issues/' +
+                    eventId;
+            }
+        );
+}
+	
 	function rrbsEventIntersectsYear(event, year) {
     var startDate = rrbsParseDate(event.start);
     var endDate = rrbsParseDate(event.end);
@@ -758,10 +1290,35 @@ jQuery(document).ready(function($) {
     $('#calendar').show();
 
     $('#calendar').fullCalendar('render');
+
+	$('#rrbs_month_plan').show();
+
+
+    var currentDate =
+        $('#calendar')
+            .fullCalendar(
+                'getDate'
+            );
+
+
+    rrbsPlanYear =
+        currentDate.year();
+
+
+    rrbsPlanMonth =
+        currentDate.month();
+
+
+    rrbsRenderMonthPlan(
+        rrbsPlanYear,
+        rrbsPlanMonth
+    );
 });
 
 $('#rrbs_show_year_plan').click(function() {
     $('#calendar').hide();
+
+	$('#rrbs_month_plan').hide();
 
     $('#rrbs_year_plan').show();
 
@@ -971,6 +1528,23 @@ $('#rrbs_next_year').click(function() {
 				//.fullCalendar('getDate')の値は，ボタン作動後の値となっている
 				var moment_calendar = $('#calendar').fullCalendar('getDate');
 					moment_calendar = moment_calendar.format('YYYY-MM-01');
+
+				var planDate =
+    				$('#calendar')
+        				.fullCalendar(
+            				'getDate'
+        				);
+
+				rrbsPlanYear =
+    				planDate.year();
+
+				rrbsPlanMonth =
+    				planDate.month();
+
+				rrbsRenderMonthPlan(
+    				rrbsPlanYear,
+    				rrbsPlanMonth
+				);
 					
 				//cookieから前回の日付を取得
 				var moment_cookie = GetCookie("moment");
