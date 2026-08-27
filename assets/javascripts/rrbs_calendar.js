@@ -78,7 +78,7 @@ jQuery(document).ready(function($) {
         					rrbsRenderYearPlan(rrbsPlanYear);
     					}
 
-				    if ($('#rrbs_year_plan').is(':visible')) {
+				    if ($('#rrbs_month_plan').is(':visible')) {
                     rrbsRenderMonthPlan(rrbsPlanYear, rrbsPlanMonth);}	 
 						 }
 					 },
