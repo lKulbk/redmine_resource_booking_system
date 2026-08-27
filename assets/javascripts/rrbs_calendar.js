@@ -79,7 +79,7 @@ jQuery(document).ready(function($) {
     					}
 
 				    if ($('#rrbs_year_plan').is(':visible')) {
-                    rrbsRenderYearPlan(rrbsPlanYear, rrbsPlanMonth);}	 
+                    rrbsRenderMonthPlan(rrbsPlanYear, rrbsPlanMonth);}	 
 						 }
 					 },
 				
