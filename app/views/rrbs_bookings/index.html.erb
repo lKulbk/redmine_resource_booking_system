@@ -86,34 +86,18 @@
   </div>
 
   <div id='rrbs_right'>
+
     <div id='calendar'></div>
-    <div id="rrbs_year_plan_container">
-  <div class="rrbs-year-plan-toolbar">
-    <button type="button" id="rrbs_show_calendar">
-      Календарь
-    </button>
 
-    <button type="button" id="rrbs_show_year_plan">
-      Годовой план
-    </button>
+    <div id='rrbs_month_plan'></div>
 
-    <span id="rrbs_year_controls" style="display: none;">
-      <button type="button" id="rrbs_prev_year">&larr;</button>
-
-      <strong id="rrbs_plan_year"></strong>
-
-      <button type="button" id="rrbs_next_year">&rarr;</button>
-    </span>
-  </div>
-
-  <div id="rrbs_year_plan" style="display: none;"></div>
-</div>
     <br/>
-    <div id='footer_message'>
-	  <%= textilizable @rrbs_setting.footer_message %>
-	</div>
-  </div>
 
+    <div id='footer_message'>
+        <%= textilizable @rrbs_setting.footer_message %>
+    </div>
+
+</div>
 
 
 
