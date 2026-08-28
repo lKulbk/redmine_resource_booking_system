@@ -5,6 +5,7 @@
   var event_json_text =[];
   var rrbsPlanYear = new Date().getFullYear();
   var rrbsPlanMonth = new Date().getMonth();
+  var rrbsViewMode = 'month';
 
   var rrbsMonthNames = [
     'Январь',
@@ -1323,6 +1324,8 @@ $('#rrbs_next_year').click(function() {
                 text: 'Год',
 
                 click: function() {
+					
+					rrbsViewMode = 'year';
 
                     // Оставляем toolbar FullCalendar,
                     // скрываем только месячную сетку.
@@ -1538,17 +1541,20 @@ $('#rrbs_next_year').click(function() {
             				'getDate'
         				);
 
-				rrbsPlanYear =
-    				planDate.year();
+                if (rrbsViewMode === 'month') {
 
-				rrbsPlanMonth =
-    				planDate.month();
+    				rrbsPlanYear =
+        				planDate.year();
 
-				rrbsRenderMonthPlan(
-    				rrbsPlanYear,
-    				rrbsPlanMonth
-				);
-					
+    				rrbsPlanMonth =
+        				planDate.month();
+
+	    			rrbsRenderMonthPlan(
+        				rrbsPlanYear,
+        				rrbsPlanMonth
+    				);
+				}
+				
 				//cookieから前回の日付を取得
 				var moment_cookie = GetCookie("moment");
 				
@@ -1595,6 +1601,95 @@ $('#rrbs_next_year').click(function() {
 		document.cookie = 'moment=' + moment_now + '; max-age=300';
 
 	loadCalendar();		// 描画
+
+
+/*
+ * Перехват штатных кнопок FullCalendar.
+ */
+$('.fc-prev-button')
+    .off('click')
+    .on('click', function() {
+
+        if (rrbsViewMode === 'year') {
+
+            rrbsPlanYear--;
+
+            $('#calendar .fc-center h2')
+                .text(rrbsPlanYear + ' год');
+
+            rrbsRenderYearPlan(
+                rrbsPlanYear
+            );
+
+            getEventsJSON(
+                0,
+                rrbsPlanYear + '-01-01'
+            );
+
+            return;
+        }
+
+        $('#calendar')
+            .fullCalendar('prev');
+    });
+
+
+$('.fc-next-button')
+    .off('click')
+    .on('click', function() {
+
+        if (rrbsViewMode === 'year') {
+
+            rrbsPlanYear++;
+
+            $('#calendar .fc-center h2')
+                .text(rrbsPlanYear + ' год');
+
+            rrbsRenderYearPlan(
+                rrbsPlanYear
+            );
+
+            getEventsJSON(
+                0,
+                rrbsPlanYear + '-01-01'
+            );
+
+            return;
+        }
+
+        $('#calendar')
+            .fullCalendar('next');
+    });
+
+
+$('.fc-today-button')
+    .off('click')
+    .on('click', function() {
+
+        if (rrbsViewMode === 'year') {
+
+            rrbsPlanYear =
+                new Date().getFullYear();
+
+            $('#calendar .fc-center h2')
+                .text(rrbsPlanYear + ' год');
+
+            rrbsRenderYearPlan(
+                rrbsPlanYear
+            );
+
+            getEventsJSON(
+                0,
+                rrbsPlanYear + '-01-01'
+            );
+
+            return;
+        }
+
+        $('#calendar')
+            .fullCalendar('today');
+    });
+	
 	load_checkbox();
 
     /*
