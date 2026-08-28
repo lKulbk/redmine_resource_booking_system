@@ -1575,15 +1575,6 @@ $('#rrbs_next_year').click(function() {
 					//cookie保存
 					document.cookie = 'moment=' + moment_calendar + '; max-age=300';
 				}
-				
-				$(".fc-prev-button").click(function(){
-				});
-				
-				$(".fc-next-button").click(function(){
-				});
-				
-				$(".fc-today-button").click(function(){
-				});
 			},
 			
 			
@@ -1700,6 +1691,8 @@ $('.fc-today-button')
     	'click',
     	'.fc-month-button',
     	function() {
+
+			rrbsViewMode = 'month';
 
         // Возвращаем месячную область FullCalendar.
         	$('#calendar .fc-view-container').show();
