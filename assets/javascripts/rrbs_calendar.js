@@ -1695,7 +1695,7 @@ $('.fc-today-button')
 			rrbsViewMode = 'month';
 
         // Возвращаем месячную область FullCalendar.
-        	$('#calendar .fc-view-container').show();
+        	$('#calendar .fc-view-container').hide();
 
         // Показываем месячный план.
         	$('#rrbs_month_plan').show();
