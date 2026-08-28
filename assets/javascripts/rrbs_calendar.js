@@ -1284,24 +1284,6 @@ function rrbsRenderMonthPlan(
         });
 }
 	
-
-$('#rrbs_show_year_plan').click(function() {
-    $('#calendar').hide();
-
-	$('#rrbs_month_plan').hide();
-
-    $('#rrbs_year_plan').show();
-
-    $('#rrbs_year_controls').css(
-        'display',
-        'inline-flex'
-    );
-
-	getEventsJSON(
-    0,
-    rrbsPlanYear + '-01-01'
-);
-});
 	$('#rrbs_prev_year').click(function() {
     rrbsPlanYear--;
 
@@ -1353,10 +1335,7 @@ $('#rrbs_next_year').click(function() {
                     $('#rrbs_year_plan').show();
 
                     // Показываем управление годом.
-                    $('#rrbs_year_controls').css(
-                        'display',
-                        'inline-flex'
-                    );
+                    $('#rrbs_year_controls').hide();
 
                     // Меняем центральный заголовок.
                     $('#calendar .fc-center h2')
@@ -1386,7 +1365,7 @@ $('#rrbs_next_year').click(function() {
 			header: {
 				left: 'prev,next today',
 				center: 'title',
-				right: 'month'
+				right: 'month,yearPlan'
 				// オプション:  month,basicWeek,basicDay,agendaWeek,agendaDay,listWeek
 			},
 			defaultView: 'month',
