@@ -444,8 +444,8 @@ label, input[type='checkbox'] {
 
 
 .rrbs-month-plan-wrapper {
-    width: 1212px;
-    min-width: 1212px;
+    width: max-content;
+    min-width: 0;
 
     background: #ffffff;
 }
@@ -463,9 +463,7 @@ label, input[type='checkbox'] {
 
     display: grid;
 
-    grid-template-columns:
-        220px
-        minmax(992px, 1fr);
+    grid-template-columns: 220px max-content;
 
     width: 100%;
     min-width: 0;
