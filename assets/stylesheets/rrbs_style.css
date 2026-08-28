@@ -176,6 +176,7 @@ label, input[type='checkbox'] {
  * 52 × 24 px — недели.
  */
 .rrbs-plan-wrapper {
+    width: 1468px;
     min-width: 1468px;
     background: #ffffff;
 }
@@ -186,6 +187,9 @@ label, input[type='checkbox'] {
 .rrbs-plan-resource-row {
     display: grid;
     grid-template-columns: 220px minmax(1248px, 1fr);
+  
+    width: 100%;
+    min-width: 0;
 }
 
 /* Левая колонка. */
@@ -440,7 +444,7 @@ label, input[type='checkbox'] {
 
 
 .rrbs-month-plan-wrapper {
-
+    width: 1212px;
     min-width: 1212px;
 
     background: #ffffff;
@@ -462,6 +466,9 @@ label, input[type='checkbox'] {
     grid-template-columns:
         220px
         minmax(992px, 1fr);
+
+    width: 100%;
+    min-width: 0;
 }
 
 
