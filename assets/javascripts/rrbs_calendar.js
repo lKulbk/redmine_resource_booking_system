@@ -1593,6 +1593,12 @@ $('#rrbs_next_year').click(function() {
 
 	loadCalendar();		// 描画
 	load_checkbox();
+
+	$('#rrbs_year_plan').hide();
+    $('#rrbs_year_controls').hide();
+
+    $('#calendar').show();
+    $('#rrbs_month_plan').show();
 	
 	$('#rrbs_plan_year').text(rrbsPlanYear);
 }); 
