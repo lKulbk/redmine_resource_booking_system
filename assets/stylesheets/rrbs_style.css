@@ -282,7 +282,7 @@ label, input[type='checkbox'] {
 .rrbs-plan-timeline {
     position: relative;
     min-width: 0;
-    max-width: 100%;
+    width: 100%;
     min-height: 26px;
     background: #ffffff;
 }
