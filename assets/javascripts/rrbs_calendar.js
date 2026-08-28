@@ -1283,37 +1283,7 @@ function rrbsRenderMonthPlan(
                 baseUrl + '/issues/' + eventId;
         });
 }
-	$('#rrbs_show_calendar').click(function() {
-    $('#rrbs_year_plan').hide();
-    $('#rrbs_year_controls').hide();
-
-    $('#calendar').show();
-
-    $('#calendar').fullCalendar('render');
-
-	$('#rrbs_month_plan').show();
-
-
-    var currentDate =
-        $('#calendar')
-            .fullCalendar(
-                'getDate'
-            );
-
-
-    rrbsPlanYear =
-        currentDate.year();
-
-
-    rrbsPlanMonth =
-        currentDate.month();
-
-
-    rrbsRenderMonthPlan(
-        rrbsPlanYear,
-        rrbsPlanMonth
-    );
-});
+	
 
 $('#rrbs_show_year_plan').click(function() {
     $('#calendar').hide();
@@ -1337,6 +1307,9 @@ $('#rrbs_show_year_plan').click(function() {
 
     $('#rrbs_plan_year').text(rrbsPlanYear);
 
+	$('#calendar .fc-center h2')
+        .text(rrbsPlanYear + ' год');
+
     getEventsJSON(
         0,
         rrbsPlanYear + '-01-01'
@@ -1347,6 +1320,9 @@ $('#rrbs_next_year').click(function() {
     rrbsPlanYear++;
 
     $('#rrbs_plan_year').text(rrbsPlanYear);
+	
+    $('#calendar .fc-center h2')
+        .text(rrbsPlanYear + ' год');
 
     getEventsJSON(
         0,
@@ -1359,6 +1335,54 @@ $('#rrbs_next_year').click(function() {
 	var loadCalendar = function() {
 		$('#calendar').fullCalendar({
 			locale: current_lang.split('-')[0].split('_')[0],
+
+			customButtons: {
+            yearPlan: {
+                text: 'Год',
+
+                click: function() {
+
+                    // Оставляем toolbar FullCalendar,
+                    // скрываем только месячную сетку.
+                    $('#calendar .fc-view-container').hide();
+
+                    // Скрываем месячный план.
+                    $('#rrbs_month_plan').hide();
+
+                    // Показываем годовой план.
+                    $('#rrbs_year_plan').show();
+
+                    // Показываем управление годом.
+                    $('#rrbs_year_controls').css(
+                        'display',
+                        'inline-flex'
+                    );
+
+                    // Меняем центральный заголовок.
+                    $('#calendar .fc-center h2')
+                        .text(rrbsPlanYear + ' год');
+
+                    // Состояние кнопок.
+                    $('.fc-month-button')
+                        .removeClass('fc-state-active');
+
+                    $('.fc-yearPlan-button')
+                        .addClass('fc-state-active');
+
+                    // Рисуем год.
+                    rrbsRenderYearPlan(
+                        rrbsPlanYear
+                    );
+
+                    // Загружаем события за год.
+                    getEventsJSON(
+                        0,
+                        rrbsPlanYear + '-01-01'
+                    );
+                }
+            }
+        },
+			
 			header: {
 				left: 'prev,next today',
 				center: 'title',
@@ -1594,6 +1618,56 @@ $('#rrbs_next_year').click(function() {
 	loadCalendar();		// 描画
 	load_checkbox();
 
+    /*
+ * Возврат из годового режима
+ * штатной кнопкой FullCalendar "Месяц".
+ */
+	$('#calendar').on(
+    	'click',
+    	'.fc-month-button',
+    	function() {
+
+        // Возвращаем месячную область FullCalendar.
+        	$('#calendar .fc-view-container').show();
+
+        // Показываем месячный план.
+        	$('#rrbs_month_plan').show();
+
+        // Скрываем годовой.
+        	$('#rrbs_year_plan').hide();
+        	$('#rrbs_year_controls').hide();
+
+        // Получаем текущую дату FullCalendar.
+        	var currentDate =
+            	$('#calendar').fullCalendar('getDate');
+
+        	rrbsPlanYear =
+            	currentDate.year();
+
+        	rrbsPlanMonth =
+            	currentDate.month();
+
+        // Возвращаем штатный заголовок месяца.
+        	$('#calendar .fc-center h2')
+            	.text(
+                	currentDate.format('MMMM YYYY')
+            	);
+
+        // Состояние кнопок.
+        	$('.fc-yearPlan-button')
+            	.removeClass('fc-state-active');
+
+        	$('.fc-month-button')
+            	.addClass('fc-state-active');
+
+        // Перерисовываем месяц.
+        	rrbsRenderMonthPlan(
+            	rrbsPlanYear,
+            	rrbsPlanMonth
+        );
+    }
+);
+	
 	$('#rrbs_year_plan').hide();
     $('#rrbs_year_controls').hide();
 
