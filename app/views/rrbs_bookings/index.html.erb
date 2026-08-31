@@ -140,7 +140,6 @@
 	        <%= label_tag("booking_end_date", l(:label_rrbs_end_date)) %><%= date_field("booking", "end_date", :size => 10 ) %><%= calendar_for('booking_end_date') %>
 	        <%= label_tag("end_time", l(:label_rrbs_end_time)) %><%= select_tag "end_time", options_for_select(@rrbs_end_time) %><br/>
 
-	    	<%= label_tag(:assigned_to, l(:label_rrbs_assigned_to)) %> <%= select_tag "selected_assigned_to", options_for_select(@assignable_users, @user) %><br/>
             <% if @rrbs_text.present? %>
 			  <%= label_tag(:booking_text, @rrbs_text) %> <%= text_field_tag("booking_text") %><br/>
 		    <% end %>
