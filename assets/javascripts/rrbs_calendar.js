@@ -337,7 +337,7 @@ jQuery(document).ready(function($) {
 	          	start_date: booking_start_date.format('YYYY-MM-DD'),
 	          	due_date: booking_end_date.format('YYYY-MM-DD'),
 	          	custom_field_values: ajaxData_custom_field_values,
-	          	assigned_to_id: $('#selected_assigned_to').val(),
+	          	//assigned_to_id: $('#selected_assigned_to').val(),
 	          	//status_id: $('#selected_issue_status').val()
 				status_id: issue_status_id_book
 	          }};
@@ -354,7 +354,7 @@ jQuery(document).ready(function($) {
 	          	start_date: booking_start_date.format('YYYY-MM-DD'),
 	          	due_date: booking_end_date.format('YYYY-MM-DD'),
 	          	custom_field_values: ajaxData_custom_field_values,
-	          	assigned_to_id: $('#selected_assigned_to').val(),
+	          	//assigned_to_id: $('#selected_assigned_to').val(),
 	          	//status_id: $('#selected_issue_status').val()
 				status_id: issue_status_id_book
 	          }};
@@ -1466,7 +1466,6 @@ $('#rrbs_next_year').click(function() {
                   $('#event_id').val(calEvent.id);
                   $('#start_time').val(calEvent.start.format('HH:mm'));
                   $('#end_time').val(calEvent.end.format('HH:mm'));
-				  $('#selected_assigned_to').val(calEvent.assigned_to_id);
 				  $('#booking_text').val(calEvent.booking_text);
 
 					//$('#selected_issue_status').val(calEvent.status_id);
@@ -1514,7 +1513,6 @@ $('#rrbs_next_year').click(function() {
                   $('#subject').val("");
                   $('#start_time').val(date.format('HH:mm'));
                   $('#end_time').val(date.format('HH:mm'));
-                  $('#selected_assigned_to').val($('#author_id').val());
                   
                   //$('#selected_issue_status').val(1);
                   
