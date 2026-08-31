@@ -763,7 +763,9 @@ function rrbsBuildMonthResourceRow(
             '<div class="' +
             'rrbs-month-day-cell' +
             weekendClass +
-            '"></div>';
+            '" style="grid-column: ' +
+		    day +
+            ';"></div>';
     }
 
 
@@ -1132,7 +1134,11 @@ function rrbsRenderMonthPlan(
      * Сетка из 52 недель.
      */
     for (var week = 1; week <= 52; week++) {
-        html += '<div class="rrbs-plan-week-cell"></div>';
+        html +=
+		'<div class="rrbs-plan-week-cell" ' +
+        'style="grid-column: ' +
+        week +
+        ';"></div>';
     }
 
     /*
