@@ -106,8 +106,6 @@ jQuery(document).ready(function($) {
               if (event[i].custom_fields == undefined) { continue; }
 
 			  var resource_id;
-              var start_time;
-			  var end_time;
 			  var text;
 
 			  //read custom_fields value
@@ -115,12 +113,6 @@ jQuery(document).ready(function($) {
               {
                   if (event[i].custom_fields[j]["id"] == fieldIdResource){
 					resource_id = event[i].custom_fields[j].value;
-				  }
-                  if (event[i].custom_fields[j]["id"] == fieldIdStart){
-					start_time = event[i].custom_fields[j].value;
-				  }
-                  if (event[i].custom_fields[j]["id"] == fieldIdEnd){
-					end_time = event[i].custom_fields[j].value;
 				  }
 				  if (event[i].custom_fields[j]["id"] == fieldIdText){
 					text = event[i].custom_fields[j].value;
