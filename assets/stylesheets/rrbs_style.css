@@ -176,9 +176,10 @@ label, input[type='checkbox'] {
  * 52 × 24 px — недели.
  */
 .rrbs-plan-wrapper {
-    width: 1468px;
+    width: 100%;
     min-width: 1468px;
     background: #ffffff;
+    box-sizing: border-box;
 }
 
 /* Каждая строка состоит из имени и временной шкалы. */
@@ -235,7 +236,8 @@ label, input[type='checkbox'] {
 .rrbs-plan-weeks,
 .rrbs-plan-timeline {
     display: grid;
-    grid-template-columns: repeat(52, minmax(0px, 1fr));
+    grid-template-columns: repeat(52, minmax(24px, 1fr));
+    width: 100%;
 }
 
 /* Месяцы — аналог заголовков FullCalendar. */
@@ -444,10 +446,10 @@ label, input[type='checkbox'] {
 
 
 .rrbs-month-plan-wrapper {
-    width: max-content;
-    min-width: 0;
-
+    width: 100%;
+    min-width: 1116px;
     background: #ffffff;
+    box-sizing: border-box;
 }
 
 
@@ -460,11 +462,10 @@ label, input[type='checkbox'] {
  */
 .rrbs-month-header-row,
 .rrbs-month-resource-row {
-
     display: grid;
-
-    grid-template-columns: 220px max-content;
-
+    grid-template-columns:
+        220px
+        minmax(896px, 1fr);
     width: 100%;
     min-width: 0;
 }
