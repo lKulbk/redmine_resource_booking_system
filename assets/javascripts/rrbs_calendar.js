@@ -310,12 +310,10 @@ jQuery(document).ready(function($) {
           var booking_start_date = window.moment($('#booking_start_date').val(), long_date_format);
           var booking_end_date = window.moment($('#booking_end_date').val(), long_date_format);
           
-          var start_time = window.moment($('#start_time').val(), 'HH:mm'); 
-		  var end_time = window.moment($('#end_time').val(), 'HH:mm');
+
           
           var ajaxData_custom_field_values = {};
-              ajaxData_custom_field_values[fieldIdStart] = start_time.format('HH:mm');
-              ajaxData_custom_field_values[fieldIdEnd] = end_time.format('HH:mm');
+		      ajaxData_custom_field_values[fieldIdStart] = '00:00';
 			  ajaxData_custom_field_values[fieldIdResource] = $('#selected_resource').val();
 			  if (fieldIdText != ''){
 			    ajaxData_custom_field_values[fieldIdText] = $('#booking_text').val();
@@ -1466,8 +1464,6 @@ $('#rrbs_next_year').click(function() {
                   $('#booking_end_date').val(calEvent.end.format(long_date_format));
                   $('#subject').val(calEvent.title);
                   $('#event_id').val(calEvent.id);
-                  $('#start_time').val(calEvent.start.format('HH:mm'));
-                  $('#end_time').val(calEvent.end.format('HH:mm'));
 				  $('#booking_text').val(calEvent.booking_text);
 
 					//$('#selected_issue_status').val(calEvent.status_id);
@@ -1513,8 +1509,6 @@ $('#rrbs_next_year').click(function() {
                   $('#booking_start_date').val(date.format(long_date_format));
                   $('#booking_end_date').val(date.format(long_date_format));
                   $('#subject').val("");
-                  $('#start_time').val(date.format('HH:mm'));
-                  $('#end_time').val(date.format('HH:mm'));
                   
                   //$('#selected_issue_status').val(1);
                   
