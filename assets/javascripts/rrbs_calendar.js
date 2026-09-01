@@ -136,23 +136,8 @@ jQuery(document).ready(function($) {
 				}
 			  }
 
-              var start;
-			  if (start_time != "" && start_time != undefined) {
-				start = event[i].start_date + "T" + start_time + ":00";
-			  } else {
-				start = event[i].start_date + "T00:00:00";
-			  }
-
-              var end;
-			  if (end_time != "" && end_time != undefined) {
-				end = event[i].due_date + "T" + end_time + ":00";
-                
-				if ((moment(end) - moment(start)) < 0){
-				  end = start.slice(0,-3) + ":01";
-				}
-			  } else {
-				end = event[i].due_date + "T23:59:00";
-			  }
+              var start = event[i].start_date + "T00:00:00";
+              var end = event[i].due_date + "T23:59:00";
               
 			  if (fieldIdText == ''){
 				text = '';
@@ -313,7 +298,6 @@ jQuery(document).ready(function($) {
 
           
           var ajaxData_custom_field_values = {};
-		      ajaxData_custom_field_values[fieldIdStart] = '00:00';
 			  ajaxData_custom_field_values[fieldIdResource] = $('#selected_resource').val();
 			  if (fieldIdText != ''){
 			    ajaxData_custom_field_values[fieldIdText] = $('#booking_text').val();
