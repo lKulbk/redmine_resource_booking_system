@@ -1410,8 +1410,6 @@ $('#rrbs_next_year').click(function() {
 							 + label_rrbs_subject      + ': ' + data.title + '</br>' 
 							 + label_rrbs_resource     + ': ' + data.resource + '</br>'
 							 + label_rrbs_assigned_to  + ': ' + data.assigned_to + '</br>' 
-							 + label_rrbs_start_time   + ': ' + data.start.toISOString().substr(0,16) + '</br>' 
-							 + label_rrbs_end_time     + ': ' + data.end.toISOString().substr(0,16) + '</br>'
 							 + label_rrbs_issueid      + ': ' + data.id + '</br>'
 						if (fieldIdText != ''){
 							tooltip = tooltip + label_rrbs_booking_text + ': ' + data.booking_text + '</br>' 
