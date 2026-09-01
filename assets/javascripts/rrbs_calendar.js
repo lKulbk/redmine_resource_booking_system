@@ -597,7 +597,7 @@ function rrbsBuildMonthHeader(
         '</div>';
 
     html +=
-
+        '<div class="rrbs-month-days-header" ' +
         'style="grid-template-columns: ' +
         'repeat(' +
          daysInMonth +
