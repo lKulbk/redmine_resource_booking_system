@@ -599,8 +599,7 @@ function rrbsBuildMonthHeader(
     html +=
         '<div class="rrbs-month-days-header" ' +
         'style="grid-template-columns: ' +
-        'repeat(' + daysInMonth + ',32px);">';
-
+        'repeat(daysInMonth, minmax(32px, 1fr));">';
     for (
         var day = 1;
         day <= daysInMonth;
