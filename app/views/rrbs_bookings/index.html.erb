@@ -10,8 +10,6 @@
     var tracker_id = "<%= @rrbs_setting.tracker_id %>"
 
 	var fieldIdResource = "<%= @rrbs_setting.custom_field_id_room %>";
-	var fieldIdStart = "<%= @rrbs_setting.custom_field_id_start %>";
-	var fieldIdEnd = "<%= @rrbs_setting.custom_field_id_end %>";
 	var fieldIdText = "<%= @rrbs_setting.custom_field_id_text %>";
 	
 	var pluginName = "redmine_resource_booking_system";
@@ -38,11 +36,6 @@
 	
 	var tracker_name = "<%= Tracker.find(@rrbs_setting.tracker_id).name %>";
 	var rrbs_resources = <%= raw(@rrbs_resources ) %>;
-	var all_start_times = <%= raw(@rrbs_start_time.collect { |time| time }) %>;
-	var all_end_times = <%= raw(@rrbs_end_time.collect { |time| time }) %>;
-	
-	var datetime_min = all_start_times[0] + ':00';
-    var datetime_max = all_end_times[all_end_times.length-1] + ':00';
 
 	var api_key = "<%= @api_key %>";
 	var status_name ;
