@@ -134,8 +134,8 @@ div#rrbs_resource {
 
 div#rrbs_right {
   overflow: hidden;
-  padding-right: auto;
-  width: 80%;  
+  width: 85%;
+  box-sizing: border-box;
 }
 div#calendar {
   padding-top: 0px; 
