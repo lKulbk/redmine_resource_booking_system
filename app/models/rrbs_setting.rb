@@ -17,6 +17,7 @@ class RrbsSetting < ActiveRecord::Base
       # Set default
       rrbs_setting.attributes = { tracker_id: '1'}
       rrbs_setting.attributes = { custom_field_id_room: '1' }
+      rrbs_setting.attributes = { custom_field_id_department: nil }
       rrbs_setting.attributes = { custom_field_id_start: '2' }
       rrbs_setting.attributes = { custom_field_id_end: '3' }
       rrbs_setting.attributes = { custom_field_id_text: '4' }
