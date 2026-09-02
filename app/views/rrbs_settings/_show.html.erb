@@ -29,6 +29,25 @@
         <%= select_tag('settings[custom_field_id_room]', options_for_select(custom_fields_issues.collect{|c| [c.name, c.id]}, @rrbs_setting['custom_field_id_room'])) %>
         &nbsp This item must be a type of Key-value-list Issue-Customfield.
       </p>
+<p>
+  <%= label_tag(
+        'settings[custom_field_id_department]',
+        'Поле "Подразделение"'
+      )
+  %>
+
+  <%= select_tag(
+        'settings[custom_field_id_department]',
+        options_for_select(
+          custom_fields_issues.collect { |c| [c.name, c.id] },
+          @rrbs_setting['custom_field_id_department']
+        ),
+        include_blank: true
+      )
+  %>
+
+  &nbsp This item must be a type of Key-value-list Issue-Customfield.
+</p>
       <p>
         <%= label_tag('settings[custom_field_id_start]', l(:label_rrbs_setting_custom_field_id_start)) %>
         <%= select_tag('settings[custom_field_id_start]', options_for_select(custom_fields_issues.collect{|c| [c.name, c.id]}, @rrbs_setting['custom_field_id_start'])) %>
