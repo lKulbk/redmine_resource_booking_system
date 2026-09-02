@@ -66,14 +66,203 @@
    <%= render :partial => 'sidebar' %>
  <% end %>
 
-  <div id="rrbs_left">
-    <div id="rrbs_resource">
-      <%= label_tag("label_rrbs_resource", l(:label_rrbs_resource)) %><br/>
-      <% @rrbs_resources.each do |r| %>
-        <%= check_box_tag "rrbs_resource_checkbox", r[1], false, {:id => "rrbs_resource_checkbox_#{r[1]}", :multiple => true } %><%= label_tag "rrbs_resource_checkbox_#{r[1]}", r[0] %><br/>
-      <% end %>
+<div id="rrbs_left">
+  <div id="rrbs_resource">
+
+    <%
+      begin
+        rrbs_departments =
+          JSON.parse(@rrbs_setting.departments.presence || '{}')
+      rescue JSON::ParserError
+        rrbs_departments = {}
+      end
+
+      grouped_employee_names =
+        rrbs_departments.values.flatten.map(&:to_s)
+
+      ungrouped_resources =
+        @rrbs_resources.reject do |r|
+          grouped_employee_names.include?(r[0].to_s)
+        end
+    %>
+
+    <div class="rrbs-resource-tree-title">
+      Сотрудники
     </div>
+
+    <div class="rrbs-select-all-row">
+      <input
+        type="checkbox"
+        id="rrbs_resource_all"
+      >
+
+      <label for="rrbs_resource_all">
+        Выбрать всех
+      </label>
+    </div>
+
+
+    <% rrbs_departments.each_with_index do |(department_name, employees), department_index| %>
+
+      <%
+        department_resources =
+          @rrbs_resources.select do |r|
+            employees.map(&:to_s).include?(r[0].to_s)
+          end
+
+        next if department_resources.empty?
+
+        department_id =
+          "rrbs_department_#{department_index}"
+      %>
+
+      <div class="rrbs-department">
+
+        <div class="rrbs-department-header">
+
+          <button
+            type="button"
+            class="rrbs-department-toggle"
+            data-target="<%= department_id %>"
+            aria-expanded="true"
+            title="Свернуть подразделение"
+          >
+            ▼
+          </button>
+
+          <input
+            type="checkbox"
+            class="rrbs-department-checkbox"
+            id="<%= department_id %>_checkbox"
+            data-target="<%= department_id %>"
+          >
+
+          <label
+            for="<%= department_id %>_checkbox"
+            class="rrbs-department-name"
+          >
+            <%= department_name %>
+          </label>
+
+        </div>
+
+
+        <div
+          class="rrbs-department-employees"
+          id="<%= department_id %>"
+        >
+
+          <% department_resources.each do |r| %>
+
+            <div class="rrbs-resource-row">
+
+              <%= check_box_tag(
+                    "rrbs_resource_checkbox",
+                    r[1],
+                    false,
+                    {
+                      id: "rrbs_resource_checkbox_#{r[1]}",
+                      multiple: true,
+                      class: "rrbs-employee-checkbox",
+                      data: {
+                        department: department_id
+                      }
+                    }
+                  )
+              %>
+
+              <%= label_tag(
+                    "rrbs_resource_checkbox_#{r[1]}",
+                    r[0]
+                  )
+              %>
+
+            </div>
+
+          <% end %>
+
+        </div>
+
+      </div>
+
+    <% end %>
+
+
+    <% if ungrouped_resources.any? %>
+
+      <div class="rrbs-department">
+
+        <div class="rrbs-department-header">
+
+          <button
+            type="button"
+            class="rrbs-department-toggle"
+            data-target="rrbs_department_other"
+            aria-expanded="true"
+            title="Свернуть подразделение"
+          >
+            ▼
+          </button>
+
+          <input
+            type="checkbox"
+            class="rrbs-department-checkbox"
+            id="rrbs_department_other_checkbox"
+            data-target="rrbs_department_other"
+          >
+
+          <label
+            for="rrbs_department_other_checkbox"
+            class="rrbs-department-name"
+          >
+            Без подразделения
+          </label>
+
+        </div>
+
+
+        <div
+          class="rrbs-department-employees"
+          id="rrbs_department_other"
+        >
+
+          <% ungrouped_resources.each do |r| %>
+
+            <div class="rrbs-resource-row">
+
+              <%= check_box_tag(
+                    "rrbs_resource_checkbox",
+                    r[1],
+                    false,
+                    {
+                      id: "rrbs_resource_checkbox_#{r[1]}",
+                      multiple: true,
+                      class: "rrbs-employee-checkbox",
+                      data: {
+                        department: "rrbs_department_other"
+                      }
+                    }
+                  )
+              %>
+
+              <%= label_tag(
+                    "rrbs_resource_checkbox_#{r[1]}",
+                    r[0]
+                  )
+              %>
+
+            </div>
+
+          <% end %>
+
+        </div>
+
+      </div>
+
+    <% end %>
+
   </div>
+</div>
 
   <div id='rrbs_right'>
 
