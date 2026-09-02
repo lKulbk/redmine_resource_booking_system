@@ -72,29 +72,179 @@
     </p>
    <hr>
 
-  <h3>Подразделения</h3>
+  <%
+  departments_cf = nil
+  employees_cf = nil
+  department_values = []
+  employee_values = []
+
+  if @rrbs_setting.custom_field_id_department.present?
+    departments_cf = IssueCustomField.find_by(
+      id: @rrbs_setting.custom_field_id_department
+    )
+  end
+
+  if @rrbs_setting.custom_field_id_room.present?
+    employees_cf = IssueCustomField.find_by(
+      id: @rrbs_setting.custom_field_id_room
+    )
+  end
+
+  if departments_cf
+    department_values = departments_cf.enumerations.active.to_a
+  end
+
+  if employees_cf
+    employee_values = employees_cf.enumerations.active.to_a
+  end
+
+  begin
+    saved_departments =
+      JSON.parse(@rrbs_setting.departments.presence || '{}')
+  rescue JSON::ParserError
+    saved_departments = {}
+  end
+%>
+
+<hr>
+
+<h3>Связь подразделений и сотрудников</h3>
+
+<% if departments_cf.nil? || employees_cf.nil? %>
 
   <p>
-    <%= label_tag('settings[departments]', 'Подразделения') %>
-    <%= text_area_tag(
-          'settings[departments]',
-          @rrbs_setting['departments'].presence || '{}',
-          rows: 12,
-          cols: 80
-        )
-    %>
+    Сначала выберите поля "Подразделение" и "Сотрудник",
+    сохраните настройки и снова откройте эту страницу.
   </p>
 
-  <p>
-    Формат JSON. Например:
-  </p>
+<% else %>
 
-  <pre>
-  {
-    "ЦУ Москва": ["Барташевич В.В.", "Храмцов К.А."],
-    "Группа сопровождения ПТК": ["Кульбикаян Л.Б."]
-  }
-  </pre>
+  <%= hidden_field_tag(
+        'settings[departments]',
+        @rrbs_setting.departments.presence || '{}',
+        id: 'rrbs_departments_json'
+      )
+  %>
+
+  <div id="rrbs_department_editor">
+
+    <% department_values.each do |department| %>
+
+      <fieldset
+        class="rrbs-department"
+        data-department-id="<%= department.id %>"
+        style="margin-bottom: 15px;"
+      >
+
+        <legend>
+          <strong><%= department.name %></strong>
+        </legend>
+
+        <% employee_values.each do |employee| %>
+
+          <%
+            selected_employees =
+              Array(saved_departments[department.id.to_s])
+                .map(&:to_s)
+
+            checked =
+              selected_employees.include?(employee.id.to_s)
+          %>
+
+          <label
+            style="display:block; margin-left:20px;"
+          >
+
+            <input
+              type="checkbox"
+              class="rrbs-department-employee"
+              value="<%= employee.id %>"
+              <%= 'checked="checked"'.html_safe if checked %>
+            >
+
+            <%= employee.name %>
+
+          </label>
+
+        <% end %>
+
+      </fieldset>
+
+    <% end %>
+
+  </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+
+    var editor =
+        document.getElementById('rrbs_department_editor');
+
+    var jsonField =
+        document.getElementById('rrbs_departments_json');
+
+    if (!editor || !jsonField) {
+        return;
+    }
+
+    function rebuildDepartmentsJson() {
+
+        var result = {};
+
+        editor
+            .querySelectorAll('.rrbs-department')
+            .forEach(function (departmentBlock) {
+
+                var departmentId =
+                    String(
+                        departmentBlock.dataset.departmentId
+                    );
+
+                result[departmentId] = [];
+
+                departmentBlock
+                    .querySelectorAll(
+                        '.rrbs-department-employee:checked'
+                    )
+                    .forEach(function (checkbox) {
+
+                        result[departmentId].push(
+                            String(checkbox.value)
+                        );
+
+                    });
+
+            });
+
+        jsonField.value = JSON.stringify(result);
+    }
+
+    editor.addEventListener('change', function (event) {
+
+        if (
+            event.target.classList.contains(
+                'rrbs-department-employee'
+            )
+        ) {
+            rebuildDepartmentsJson();
+        }
+
+    });
+
+    var form =
+        document.getElementById('rrbs_booking');
+
+    if (form) {
+        form.addEventListener(
+            'submit',
+            rebuildDepartmentsJson
+        );
+    }
+
+});
+</script>
+
+<% end %>
     
     
     <br/>
