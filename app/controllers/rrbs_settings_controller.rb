@@ -40,6 +40,6 @@ class RrbsSettingsController < ApplicationController
   end
   
   def rrbs_setting_params
-    params.require(:settings).permit('tracker_id', 'custom_field_id_room', 'custom_field_id_start', 'custom_field_id_end', 'custom_field_id_text', 'issue_status_id_book', 'issue_status_id_progress', 'issue_status_id_complete', 'issue_status_id_cancel','footer_message', 'departments')
+    params.require(:settings).permit('tracker_id', 'custom_field_id_room', 'custom_field_id_department', 'custom_field_id_start', 'custom_field_id_end', 'custom_field_id_text', 'issue_status_id_book', 'issue_status_id_progress', 'issue_status_id_complete', 'issue_status_id_cancel','footer_message', 'departments')
   end
 end
