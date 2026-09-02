@@ -1,4 +1,5 @@
 require File.expand_path('../lib/rrbs_projects_helper_patch', __FILE__)
+require File.expand_path('../lib/rrbs_issue_form_hook', __FILE__)
 
 Redmine::Plugin.register :redmine_resource_booking_system do
   name 'Redmine Resource Booking System plugin'
