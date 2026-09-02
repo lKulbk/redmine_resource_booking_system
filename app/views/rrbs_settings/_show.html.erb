@@ -51,6 +51,31 @@
       <%= text_area_tag('settings[footer_message]', @rrbs_setting['footer_message']) %>
       <br/>
     </p>
+   <hr>
+
+  <h3>Подразделения</h3>
+
+  <p>
+    <%= label_tag('settings[departments]', 'Подразделения') %>
+    <%= text_area_tag(
+          'settings[departments]',
+          @rrbs_setting['departments'].presence || '{}',
+          rows: 12,
+          cols: 80
+        )
+    %>
+  </p>
+
+  <p>
+    Формат JSON. Например:
+  </p>
+
+  <pre>
+  {
+    "ЦУ Москва": ["Барташевич В.В.", "Храмцов К.А."],
+    "Группа сопровождения ПТК": ["Кульбикаян Л.Б."]
+  }
+  </pre>
     
     
     <br/>
