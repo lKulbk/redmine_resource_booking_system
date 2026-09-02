@@ -169,7 +169,206 @@ jQuery(document).ready(function($) {
           return true;
       };
 	
-	
+	/*
+ * ============================================================
+ * ДЕРЕВО СОТРУДНИКОВ ПО ПОДРАЗДЕЛЕНИЯМ
+ * ============================================================
+ */
+
+var rrbsUpdateTreeCheckboxes = function () {
+
+    $('.rrbs-department-checkbox').each(function () {
+
+        var departmentCheckbox = $(this);
+        var targetId =
+            departmentCheckbox.data('target');
+
+        var employees =
+            $('#' + targetId)
+                .find(
+                    'input[name="rrbs_resource_checkbox"]'
+                );
+
+        var checkedEmployees =
+            employees.filter(':checked');
+
+
+        if (
+            employees.length > 0 &&
+            checkedEmployees.length === employees.length
+        ) {
+
+            departmentCheckbox
+                .prop('checked', true)
+                .prop('indeterminate', false);
+
+        } else if (checkedEmployees.length > 0) {
+
+            departmentCheckbox
+                .prop('checked', false)
+                .prop('indeterminate', true);
+
+        } else {
+
+            departmentCheckbox
+                .prop('checked', false)
+                .prop('indeterminate', false);
+        }
+    });
+
+
+    var allEmployees =
+        $('input[name="rrbs_resource_checkbox"]');
+
+    var checkedEmployees =
+        allEmployees.filter(':checked');
+
+    var selectAll =
+        $('#rrbs_resource_all');
+
+
+    if (
+        allEmployees.length > 0 &&
+        checkedEmployees.length === allEmployees.length
+    ) {
+
+        selectAll
+            .prop('checked', true)
+            .prop('indeterminate', false);
+
+    } else if (checkedEmployees.length > 0) {
+
+        selectAll
+            .prop('checked', false)
+            .prop('indeterminate', true);
+
+    } else {
+
+        selectAll
+            .prop('checked', false)
+            .prop('indeterminate', false);
+    }
+};
+
+
+/*
+ * Выбрать / снять всех сотрудников.
+ */
+$('#rrbs_resource_all').on(
+    'change',
+    function (event) {
+
+        var checked =
+            $(this).prop('checked');
+
+        $('input[name="rrbs_resource_checkbox"]')
+            .prop('checked', checked);
+
+        $('.rrbs-department-checkbox')
+            .prop('checked', checked)
+            .prop('indeterminate', false);
+
+        $('#rrbs_resource')
+            .trigger('change');
+
+        event.stopPropagation();
+    }
+);
+
+
+/*
+ * Выбрать / снять всё подразделение.
+ */
+$('.rrbs-department-checkbox').on(
+    'change',
+    function (event) {
+
+        var checked =
+            $(this).prop('checked');
+
+        var targetId =
+            $(this).data('target');
+
+        $('#' + targetId)
+            .find(
+                'input[name="rrbs_resource_checkbox"]'
+            )
+            .prop('checked', checked);
+
+        $(this)
+            .prop('indeterminate', false);
+
+        rrbsUpdateTreeCheckboxes();
+
+        $('#rrbs_resource')
+            .trigger('change');
+
+        event.stopPropagation();
+    }
+);
+
+
+/*
+ * Ручной выбор одного сотрудника.
+ */
+$(document).on(
+    'change',
+    'input[name="rrbs_resource_checkbox"]',
+    function () {
+
+        rrbsUpdateTreeCheckboxes();
+    }
+);
+
+
+/*
+ * Свернуть / раскрыть подразделение.
+ */
+$('.rrbs-department-toggle').on(
+    'click',
+    function (event) {
+
+        event.preventDefault();
+        event.stopPropagation();
+
+        var button =
+            $(this);
+
+        var targetId =
+            button.data('target');
+
+        var container =
+            $('#' + targetId);
+
+        var expanded =
+            button.attr('aria-expanded') === 'true';
+
+        if (expanded) {
+
+            container.slideUp(120);
+
+            button
+                .text('▶')
+                .attr('aria-expanded', 'false')
+                .attr(
+                    'title',
+                    'Развернуть подразделение'
+                );
+
+        } else {
+
+            container.slideDown(120);
+
+            button
+                .text('▼')
+                .attr('aria-expanded', 'true')
+                .attr(
+                    'title',
+                    'Свернуть подразделение'
+                );
+        }
+    }
+);
 
 	//選択ボタンでリソースが変更された場合
 	$('#rrbs_resource').change(function() {
@@ -192,24 +391,33 @@ jQuery(document).ready(function($) {
            );
        }
 	});
-	
-	var load_checkbox = function(){
-		var r_selected = GetCookie_array("r_selected");
-		
-		//try {
-		//		r_selected_str = r_selected_str.replace("[","")
-		//		r_selected_str = r_selected_str.replace("]","")
-		//	var r_selected = r_selected_str.split(',');
-			
-			if (r_selected.length > 0){
-				$('input:checkbox[name="rrbs_resource_checkbox"]').each(function(){
-					//console.log(" rrbs_resource_checkbox  "  + $(this).val());
-					if (r_selected.indexOf($(this).val()) >= 0){ $(this).attr("checked",true) }
-				});
-				filterEvents(r_selected);
-			}
-		//} catch (error) { console.log("r_selected cookie undefined"); }
-	};
+
+	var load_checkbox = function () {
+
+    var r_selected =
+        GetCookie_array('r_selected');
+
+    if (r_selected.length > 0) {
+
+        $('input:checkbox[name="rrbs_resource_checkbox"]')
+            .each(function () {
+
+                if (
+                    r_selected.indexOf(
+                        $(this).val()
+                    ) >= 0
+                ) {
+
+                    $(this)
+                        .prop('checked', true);
+                }
+            });
+
+        filterEvents(r_selected);
+
+        rrbsUpdateTreeCheckboxes();
+    }
+};
 	
 	
 	var filterEvents = function(r_selected){
