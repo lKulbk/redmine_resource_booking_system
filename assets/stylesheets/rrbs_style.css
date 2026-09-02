@@ -747,3 +747,226 @@ label, input[type='checkbox'] {
 
     display: none;
 }
+
+/*
+ * ============================================================
+ * Дерево сотрудников по подразделениям
+ * ============================================================
+ */
+
+#rrbs_left {
+    min-width: 230px;
+}
+
+#rrbs_resource {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 12px 10px;
+
+    background: #ffffff;
+
+    border: 1px solid #d7d7d7;
+    border-radius: 5px;
+
+    font-size: 13px;
+}
+
+
+.rrbs-resource-tree-title {
+    margin-bottom: 10px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    color: #333333;
+}
+
+
+/*
+ * Выбрать всех
+ */
+.rrbs-select-all-row {
+    display: flex;
+    align-items: center;
+
+    min-height: 28px;
+
+    margin-bottom: 8px;
+    padding: 4px 6px;
+
+    background: #f3f5f7;
+
+    border-radius: 4px;
+}
+
+.rrbs-select-all-row input {
+    margin: 0 7px 0 0;
+}
+
+.rrbs-select-all-row label {
+    margin: 0;
+
+    cursor: pointer;
+
+    font-weight: 600;
+
+    color: #333333;
+}
+
+
+/*
+ * Подразделение
+ */
+.rrbs-department {
+    margin-top: 6px;
+
+    border: 1px solid #e1e1e1;
+    border-radius: 4px;
+
+    overflow: hidden;
+}
+
+
+.rrbs-department-header {
+    display: flex;
+    align-items: center;
+
+    min-height: 30px;
+
+    padding: 3px 6px;
+
+    background: #f7f7f7;
+}
+
+
+.rrbs-department-header:hover {
+    background: #f0f2f4;
+}
+
+
+/*
+ * Стрелка
+ */
+.rrbs-department-toggle {
+    box-sizing: border-box;
+
+    width: 22px;
+    min-width: 22px;
+    height: 22px;
+
+    margin: 0 3px 0 0;
+    padding: 0;
+
+    background: transparent;
+
+    border: none;
+    border-radius: 3px;
+
+    color: #555555;
+
+    font-size: 10px;
+    line-height: 22px;
+
+    text-align: center;
+
+    cursor: pointer;
+}
+
+
+.rrbs-department-toggle:hover {
+    background: #e3e6e8;
+}
+
+
+/*
+ * Checkbox подразделения
+ */
+.rrbs-department-checkbox {
+    margin: 0 7px 0 0;
+}
+
+
+/*
+ * Название подразделения
+ */
+.rrbs-department-name {
+    flex: 1;
+
+    margin: 0;
+
+    font-weight: 600;
+
+    color: #333333;
+
+    cursor: pointer;
+
+    user-select: none;
+}
+
+
+/*
+ * Сотрудники подразделения
+ */
+.rrbs-department-employees {
+    padding: 4px 5px 5px 29px;
+
+    background: #ffffff;
+}
+
+
+/*
+ * Строка сотрудника
+ */
+.rrbs-resource-row {
+    display: flex;
+    align-items: center;
+
+    min-height: 26px;
+
+    padding: 2px 4px;
+
+    border-radius: 3px;
+}
+
+
+.rrbs-resource-row:hover {
+    background: #f5f7f8;
+}
+
+
+.rrbs-resource-row input {
+    margin: 0 7px 0 0;
+}
+
+
+.rrbs-resource-row label {
+    flex: 1;
+
+    margin: 0;
+
+    color: #444444;
+
+    cursor: pointer;
+
+    line-height: 20px;
+}
+
+
+/*
+ * Полусостояние checkbox — когда выбрана
+ * только часть подразделения.
+ */
+.rrbs-department-checkbox:indeterminate,
+#rrbs_resource_all:indeterminate {
+    opacity: 0.75;
+}
+
+
+/*
+ * Чтобы длинные названия не ломали левую панель.
+ */
+.rrbs-department-name,
+.rrbs-resource-row label {
+    overflow-wrap: anywhere;
+    word-break: normal;
+}
