@@ -25,6 +25,7 @@ class RrbsSetting < ActiveRecord::Base
       rrbs_setting.attributes = { issue_status_id_complete: '3' }
       rrbs_setting.attributes = { issue_status_id_cancel: '4' }
       rrbs_setting.attributes = { footer_message: '' }
+      rrbs_setting.attributes = { departments: '{}' }
             
       rrbs_setting.save!
     end
