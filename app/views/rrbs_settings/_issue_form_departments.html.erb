@@ -1,0 +1,273 @@
+<%
+  rrbs_project =
+    if defined?(@project) && @project
+      @project
+    elsif defined?(@issue) && @issue
+      @issue.project
+    else
+      nil
+    end
+
+  rrbs_setting =
+    if rrbs_project
+      RrbsSetting.find_by(project_id: rrbs_project.id)
+    end
+%>
+
+<%
+if rrbs_setting &&
+   rrbs_setting.custom_field_id_department.present? &&
+   rrbs_setting.custom_field_id_room.present?
+%>
+
+  <%
+    begin
+      rrbs_department_map =
+        JSON.parse(
+          rrbs_setting.departments.presence || '{}'
+        )
+    rescue JSON::ParserError
+      rrbs_department_map = {}
+    end
+  %>
+
+<script>
+(function () {
+
+    var RRBS_TRACKER_ID =
+        "<%= j rrbs_setting.tracker_id.to_s %>";
+
+    var RRBS_DEPARTMENT_FIELD_ID =
+        "<%= j rrbs_setting.custom_field_id_department.to_s %>";
+
+    var RRBS_EMPLOYEE_FIELD_ID =
+        "<%= j rrbs_setting.custom_field_id_room.to_s %>";
+
+    var RRBS_DEPARTMENTS =
+        <%= raw(rrbs_department_map.to_json) %>;
+
+    function normalizeText(text) {
+        return String(text || '').trim();
+    }
+
+    function initRrbsDepartmentFilter() {
+
+        var trackerSelect =
+            document.getElementById('issue_tracker_id');
+
+        var departmentSelect =
+            document.getElementById(
+                'issue_custom_field_values_' +
+                RRBS_DEPARTMENT_FIELD_ID
+            );
+
+        var employeeSelect =
+            document.getElementById(
+                'issue_custom_field_values_' +
+                RRBS_EMPLOYEE_FIELD_ID
+            );
+
+        if (!departmentSelect || !employeeSelect) {
+            return;
+        }
+
+        /*
+         * Сохраняем исходный список сотрудников.
+         */
+        if (!employeeSelect._rrbsAllOptions) {
+
+            employeeSelect._rrbsAllOptions =
+                Array.from(employeeSelect.options)
+                    .map(function (option) {
+                        return {
+                            value: option.value,
+                            text: option.text
+                        };
+                    });
+        }
+
+        function restoreAllEmployees() {
+
+            var oldValue = employeeSelect.value;
+
+            employeeSelect.innerHTML = '';
+
+            employeeSelect._rrbsAllOptions
+                .forEach(function (item) {
+
+                    var option =
+                        document.createElement('option');
+
+                    option.value = item.value;
+                    option.text = item.text;
+
+                    if (item.value === oldValue) {
+                        option.selected = true;
+                    }
+
+                    employeeSelect.appendChild(option);
+                });
+
+            employeeSelect.disabled = false;
+        }
+
+        function applyDepartmentFilter() {
+
+            /*
+             * Фильтр используем только для нужного трекера.
+             */
+            if (
+                trackerSelect &&
+                String(trackerSelect.value) !==
+                String(RRBS_TRACKER_ID)
+            ) {
+                restoreAllEmployees();
+                return;
+            }
+
+            /*
+             * Получаем ВИДИМОЕ название подразделения,
+             * например "ЦУ Москва".
+             */
+            var selectedDepartmentOption =
+                departmentSelect.options[
+                    departmentSelect.selectedIndex
+                ];
+
+            var departmentName =
+                selectedDepartmentOption
+                    ? normalizeText(
+                        selectedDepartmentOption.text
+                      )
+                    : '';
+
+            /*
+             * Например:
+             *
+             * RRBS_DEPARTMENTS["ЦУ Москва"]
+             *
+             * ->
+             *
+             * [
+             *   "Барташевич В.В.",
+             *   "Храмцов К.А."
+             * ]
+             */
+            var allowedEmployees =
+                RRBS_DEPARTMENTS[departmentName] || [];
+
+            allowedEmployees =
+                allowedEmployees.map(normalizeText);
+
+            var oldEmployeeText = '';
+
+            if (employeeSelect.selectedIndex >= 0) {
+                oldEmployeeText =
+                    normalizeText(
+                        employeeSelect.options[
+                            employeeSelect.selectedIndex
+                        ].text
+                    );
+            }
+
+            employeeSelect.innerHTML = '';
+
+            /*
+             * Если подразделение не выбрано —
+             * оставляем только пустой option.
+             */
+            employeeSelect._rrbsAllOptions
+                .forEach(function (item) {
+
+                    var employeeName =
+                        normalizeText(item.text);
+
+                    var isEmpty =
+                        normalizeText(item.value) === '' ||
+                        employeeName === '---';
+
+                    var isAllowed =
+                        allowedEmployees.indexOf(
+                            employeeName
+                        ) !== -1;
+
+                    if (!isEmpty && !isAllowed) {
+                        return;
+                    }
+
+                    var option =
+                        document.createElement('option');
+
+                    option.value = item.value;
+                    option.text = item.text;
+
+                    if (
+                        employeeName === oldEmployeeText &&
+                        isAllowed
+                    ) {
+                        option.selected = true;
+                    }
+
+                    employeeSelect.appendChild(option);
+                });
+
+            employeeSelect.disabled =
+                departmentName === '' ||
+                allowedEmployees.length === 0;
+        }
+
+        /*
+         * Не навешиваем несколько одинаковых обработчиков.
+         */
+        if (!departmentSelect.dataset.rrbsBound) {
+
+            departmentSelect.addEventListener(
+                'change',
+                applyDepartmentFilter
+            );
+
+            departmentSelect.dataset.rrbsBound = '1';
+        }
+
+        if (
+            trackerSelect &&
+            !trackerSelect.dataset.rrbsBound
+        ) {
+
+            trackerSelect.addEventListener(
+                'change',
+                function () {
+
+                    /*
+                     * Redmine может перерисовать поля
+                     * при смене tracker.
+                     */
+                    window.setTimeout(
+                        initRrbsDepartmentFilter,
+                        200
+                    );
+                }
+            );
+
+            trackerSelect.dataset.rrbsBound = '1';
+        }
+
+        applyDepartmentFilter();
+    }
+
+    document.addEventListener(
+        'DOMContentLoaded',
+        initRrbsDepartmentFilter
+    );
+
+    if (
+        document.readyState === 'interactive' ||
+        document.readyState === 'complete'
+    ) {
+        initRrbsDepartmentFilter();
+    }
+
+})();
+</script>
+
+<% end %>
