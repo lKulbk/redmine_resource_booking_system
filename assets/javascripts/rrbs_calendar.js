@@ -380,6 +380,64 @@ $('.rrbs-department-toggle').on(
     }
 );
 
+	/*
+ * По умолчанию все подразделения свернуты.
+ */
+$('.rrbs-department-employees').hide();
+
+$('.rrbs-department-toggle')
+    .text('▶')
+    .attr('aria-expanded', 'false')
+    .attr(
+        'title',
+        'Развернуть подразделение'
+    );
+
+
+/*
+ * Показываем справа только отпуска
+ * выбранных сотрудников.
+ */
+var rrbsFilterPlannedVacations = function () {
+
+    var selectedResources = [];
+
+    $('input[name="rrbs_resource_checkbox"]:checked')
+        .each(function () {
+
+            selectedResources.push(
+                String($(this).val())
+            );
+        });
+
+
+    $('.rrbs-planned-resource')
+        .each(function () {
+
+            var block =
+                $(this);
+
+            var resourceId =
+                String(
+                    block.attr('data-resource-id')
+                );
+
+
+            if (
+                selectedResources.indexOf(
+                    resourceId
+                ) !== -1
+            ) {
+
+                block.show();
+
+            } else {
+
+                block.hide();
+            }
+        });
+};
+
 	//選択ボタンでリソースが変更された場合
 	$('#rrbs_resource').change(function() {
 		var r_selected = [];
