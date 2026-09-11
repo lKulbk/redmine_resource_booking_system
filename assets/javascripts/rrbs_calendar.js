@@ -5,6 +5,8 @@
   var event_json_text =[];
   var rrbsPlanYear = new Date().getFullYear();
   var rrbsPlanMonth = new Date().getMonth();
+  var rrbsPlanQuarter =
+      Math.floor(rrbsPlanMonth / 3);
   var rrbsViewMode = 'month';
 
   var rrbsMonthNames = [
@@ -78,6 +80,14 @@ jQuery(document).ready(function($) {
     					if ($('#rrbs_year_plan').is(':visible')) {
         					rrbsRenderYearPlan(rrbsPlanYear);
     					}
+
+						if ($('#rrbs_quarter_plan').is(':visible')) {
+
+    						rrbsRenderQuarterPlan(
+        						rrbsPlanYear,
+        						rrbsPlanQuarter
+    					);
+					}
 
 				    if ($('#rrbs_month_plan').is(':visible')) {
                     rrbsRenderMonthPlan(rrbsPlanYear, rrbsPlanMonth);}	 
@@ -383,6 +393,14 @@ $('.rrbs-department-toggle').on(
 		   if ($('#rrbs_year_plan').is(':visible')) {
                rrbsRenderYearPlan(rrbsPlanYear);
            }
+
+		   if ($('#rrbs_quarter_plan').is(':visible')) {
+
+               rrbsRenderQuarterPlan(
+                   rrbsPlanYear,
+                   rrbsPlanQuarter
+         );
+     }
 
 		   if ($('#rrbs_month_plan').is(':visible')) {
               rrbsRenderMonthPlan(
@@ -1220,6 +1238,210 @@ function rrbsRenderMonthPlan(
             }
         );
 }
+
+/*
+ * ============================================================
+ * КВАРТАЛЬНЫЙ ПЛАН
+ * ============================================================
+ */
+
+function rrbsQuarterTitle(year, quarter) {
+
+    var quarterNames = [
+        'I квартал',
+        'II квартал',
+        'III квартал',
+        'IV квартал'
+    ];
+
+    return quarterNames[quarter] + ' ' + year;
+}
+
+
+function rrbsBuildQuarterMonth(year, month) {
+
+    var html = '';
+
+    html +=
+        '<div class="rrbs-quarter-month">';
+
+    html +=
+        '<div class="rrbs-quarter-month-title">' +
+        rrbsMonthNames[month] +
+        ' ' +
+        year +
+        '</div>';
+
+    html +=
+        '<div class="rrbs-month-plan-wrapper">';
+
+    html +=
+        rrbsBuildMonthHeader(
+            year,
+            month
+        );
+
+    var selectedResources =
+        GetCookie_array(
+            'r_selected'
+        );
+
+    for (
+        var i = 0;
+        i < rrbs_resources.length;
+        i++
+    ) {
+
+        var resource =
+            rrbs_resources[i];
+
+        var resourceId =
+            String(resource[1]);
+
+        if (
+            selectedResources.indexOf(
+                resourceId
+            ) === -1
+        ) {
+            continue;
+        }
+
+        html +=
+            rrbsBuildMonthResourceRow(
+                resource,
+                year,
+                month
+            );
+    }
+
+    html += '</div>';
+    html += '</div>';
+
+    return html;
+}
+
+
+function rrbsRenderQuarterPlan(
+    year,
+    quarter
+) {
+
+    rrbsPlanYear = year;
+    rrbsPlanQuarter = quarter;
+
+    var firstMonth =
+        quarter * 3;
+
+    var html = '';
+
+    html +=
+        '<div class="rrbs-quarter-plan-wrapper">';
+
+    for (
+        var offset = 0;
+        offset < 3;
+        offset++
+    ) {
+
+        html +=
+            rrbsBuildQuarterMonth(
+                year,
+                firstMonth + offset
+            );
+    }
+
+    html += '</div>';
+
+    $('#rrbs_quarter_plan')
+        .html(html);
+
+    $('#rrbs_quarter_plan')
+        .off(
+            'click',
+            '.rrbs-month-event'
+        )
+        .on(
+            'click',
+            '.rrbs-month-event',
+            function() {
+
+                var eventId =
+                    $(this)
+                        .data(
+                            'event-id'
+                        );
+
+                if (!eventId) {
+                    return;
+                }
+
+                window.location.href =
+                    baseUrl +
+                    '/issues/' +
+                    eventId;
+            }
+        );
+}
+
+
+function rrbsQuarterPrev() {
+
+    rrbsPlanQuarter--;
+
+    if (rrbsPlanQuarter < 0) {
+
+        rrbsPlanQuarter = 3;
+        rrbsPlanYear--;
+    }
+
+    rrbsShowQuarter();
+}
+
+
+function rrbsQuarterNext() {
+
+    rrbsPlanQuarter++;
+
+    if (rrbsPlanQuarter > 3) {
+
+        rrbsPlanQuarter = 0;
+        rrbsPlanYear++;
+    }
+
+    rrbsShowQuarter();
+}
+
+
+function rrbsShowQuarter() {
+
+    $('#calendar .fc-center h2')
+        .text(
+            rrbsQuarterTitle(
+                rrbsPlanYear,
+                rrbsPlanQuarter
+            )
+        );
+
+    rrbsRenderQuarterPlan(
+        rrbsPlanYear,
+        rrbsPlanQuarter
+    );
+
+    var firstMonth =
+        rrbsPlanQuarter * 3;
+
+    var monthString =
+        String(firstMonth + 1)
+            .padStart(2, '0');
+
+    getEventsJSON(
+        0,
+        rrbsPlanYear +
+            '-' +
+            monthString +
+            '-01'
+    );
+}
 	
 	function rrbsEventIntersectsYear(event, year) {
     var startDate = rrbsParseDate(event.start);
@@ -1509,56 +1731,132 @@ $('#rrbs_next_year').click(function() {
 		$('#calendar').fullCalendar({
 			locale: current_lang.split('-')[0].split('_')[0],
 
-			customButtons: {
-            yearPlan: {
-                text: 'Год',
+customButtons: {
 
-                click: function() {
-					
-					rrbsViewMode = 'year';
+    quarterPlan: {
 
-                    // Оставляем toolbar FullCalendar,
-                    // скрываем только месячную сетку.
-                    $('#calendar .fc-view-container').hide();
+        text: 'Квартал',
 
-                    // Скрываем месячный план.
-                    $('#rrbs_month_plan').hide();
+        click: function() {
 
-                    // Показываем годовой план.
-                    $('#rrbs_year_plan').show();
+            if (rrbsViewMode === 'month') {
 
-                    // Показываем управление годом.
-                    $('#rrbs_year_controls').hide();
+                var currentDate =
+                    $('#calendar')
+                        .fullCalendar(
+                            'getDate'
+                        );
 
-                    // Меняем центральный заголовок.
-                    $('#calendar .fc-center h2')
-                        .text(rrbsPlanYear + ' год');
+                rrbsPlanYear =
+                    currentDate.year();
 
-                    // Состояние кнопок.
-                    $('.fc-month-button')
-                        .removeClass('fc-state-active');
+                rrbsPlanMonth =
+                    currentDate.month();
 
-                    $('.fc-yearPlan-button')
-                        .addClass('fc-state-active');
-
-                    // Рисуем год.
-                    rrbsRenderYearPlan(
-                        rrbsPlanYear
+                rrbsPlanQuarter =
+                    Math.floor(
+                        rrbsPlanMonth / 3
                     );
-
-                    // Загружаем события за год.
-                    getEventsJSON(
-                        0,
-                        rrbsPlanYear + '-01-01'
-                    );
-                }
             }
-        },
+
+            rrbsViewMode = 'quarter';
+
+            $('#calendar .fc-view-container')
+                .hide();
+
+            $('#rrbs_month_plan')
+                .hide();
+
+            $('#rrbs_year_plan')
+                .hide();
+
+            $('#rrbs_quarter_plan')
+                .show();
+
+            $('#rrbs_year_controls')
+                .hide();
+
+            $('.fc-month-button')
+                .removeClass(
+                    'fc-state-active'
+                );
+
+            $('.fc-yearPlan-button')
+                .removeClass(
+                    'fc-state-active'
+                );
+
+            $('.fc-quarterPlan-button')
+                .addClass(
+                    'fc-state-active'
+                );
+
+            rrbsShowQuarter();
+        }
+    },
+
+
+    yearPlan: {
+
+        text: 'Год',
+
+        click: function() {
+
+            rrbsViewMode = 'year';
+
+            $('#calendar .fc-view-container')
+                .hide();
+
+            $('#rrbs_month_plan')
+                .hide();
+
+            $('#rrbs_quarter_plan')
+                .hide();
+
+            $('#rrbs_year_plan')
+                .show();
+
+            $('#rrbs_year_controls')
+                .hide();
+
+            $('#calendar .fc-center h2')
+                .text(
+                    rrbsPlanYear +
+                    ' год'
+                );
+
+            $('.fc-month-button')
+                .removeClass(
+                    'fc-state-active'
+                );
+
+            $('.fc-quarterPlan-button')
+                .removeClass(
+                    'fc-state-active'
+                );
+
+            $('.fc-yearPlan-button')
+                .addClass(
+                    'fc-state-active'
+                );
+
+            rrbsRenderYearPlan(
+                rrbsPlanYear
+            );
+
+            getEventsJSON(
+                0,
+                rrbsPlanYear +
+                    '-01-01'
+            );
+        }
+    }
+},
 			
 			header: {
 				left: 'prev,next today',
 				center: 'title',
-				right: 'month,yearPlan'
+				right: 'month,quarterPlan,yearPlan'
 				// オプション:  month,basicWeek,basicDay,agendaWeek,agendaDay,listWeek
 			},
 			defaultView: 'month',
@@ -1801,6 +2099,13 @@ $('.fc-prev-button')
             return;
         }
 
+		if (rrbsViewMode === 'quarter') {
+
+   			rrbsQuarterPrev();
+
+    		return;
+		}
+
         $('#calendar')
             .fullCalendar('prev');
     });
@@ -1828,6 +2133,13 @@ $('.fc-next-button')
 
             return;
         }
+
+		if (rrbsViewMode === 'quarter') {
+
+    		rrbsQuarterNext();
+
+    		return;
+		}
 
         $('#calendar')
             .fullCalendar('next');
@@ -1858,6 +2170,27 @@ $('.fc-today-button')
             return;
         }
 
+		if (rrbsViewMode === 'quarter') {
+
+    		var now =
+        		new Date();
+
+    		rrbsPlanYear =
+        		now.getFullYear();
+
+    		rrbsPlanMonth =
+        		now.getMonth();
+
+    		rrbsPlanQuarter =
+        		Math.floor(
+            		rrbsPlanMonth / 3
+        		);
+
+    		rrbsShowQuarter();
+
+    		return;
+		}
+
         $('#calendar')
             .fullCalendar('today');
     });
@@ -1881,6 +2214,8 @@ $('.fc-today-button')
         // Показываем месячный план.
         	$('#rrbs_month_plan').show();
 
+            $('#rrbs_quarter_plan').hide();
+			
         // Скрываем годовой.
         	$('#rrbs_year_plan').hide();
         	$('#rrbs_year_controls').hide();
@@ -1904,7 +2239,12 @@ $('.fc-today-button')
         // Состояние кнопок.
         	$('.fc-yearPlan-button')
             	.removeClass('fc-state-active');
-
+			
+			$('.fc-quarterPlan-button')
+    			.removeClass(
+        			'fc-state-active'
+    			);
+			
         	$('.fc-month-button')
             	.addClass('fc-state-active');
 
@@ -1917,6 +2257,7 @@ $('.fc-today-button')
 );
 	
 	$('#rrbs_year_plan').hide();
+	$('#rrbs_quarter_plan').hide();
     $('#rrbs_year_controls').hide();
 
     $('#calendar').show();
