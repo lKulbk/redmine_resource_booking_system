@@ -970,3 +970,70 @@ label, input[type='checkbox'] {
     overflow-wrap: anywhere;
     word-break: normal;
 }
+
+/* ==========================================================
+ * Квартальный план
+ * ========================================================== */
+
+#rrbs_quarter_plan {
+    width: 100%;
+}
+
+
+/*
+ * Все три месяца вертикально.
+ */
+.rrbs-quarter-plan-wrapper {
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    width: 100%;
+}
+
+
+/*
+ * Один месяц квартала.
+ */
+.rrbs-quarter-month {
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #d7d7d7;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+
+/*
+ * Заголовок месяца.
+ */
+.rrbs-quarter-month-title {
+    box-sizing: border-box;
+    width: 100%;
+    padding: 9px 12px;
+
+    background: #f3f5f7;
+    border-bottom: 1px solid #d7d7d7;
+
+    font-size: 15px;
+    font-weight: 600;
+    color: #333333;
+}
+
+
+/*
+ * Сам месячный план уже использует существующие
+ * rrbs-month-* стили.
+ */
+.rrbs-quarter-month .rrbs-month-plan-wrapper {
+    margin: 0;
+}
+
+
+/*
+ * Если месяц шире рабочей области,
+ * появляется горизонтальная прокрутка только у месяца.
+ */
+.rrbs-quarter-month {
+    overflow-x: auto;
+    overflow-y: hidden;
+}
