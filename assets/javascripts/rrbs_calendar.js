@@ -390,6 +390,8 @@ $('.rrbs-department-toggle').on(
 		
 			filterEvents(r_selected);
 
+		    rrbsFilterPlannedVacations();
+
 		   if ($('#rrbs_year_plan').is(':visible')) {
                rrbsRenderYearPlan(rrbsPlanYear);
            }
@@ -435,6 +437,8 @@ $('.rrbs-department-toggle').on(
 
         rrbsUpdateTreeCheckboxes();
     }
+		
+	rrbsFilterPlannedVacations();
 };
 	
 	
