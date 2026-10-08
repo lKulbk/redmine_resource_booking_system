@@ -1037,3 +1037,8 @@ label, input[type='checkbox'] {
     overflow-x: auto;
     overflow-y: hidden;
 }
+
+/* Отделяем кнопку Excel от группы переключения периодов */
+#calendar .fc-exportExcel-button {
+    margin-left: 1em !important;
+}
