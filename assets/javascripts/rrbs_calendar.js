@@ -1786,7 +1786,425 @@ $('#rrbs_next_year').click(function() {
         rrbsPlanYear + '-01-01'
     );
 });
+
 	
+/*
+ * Экспорт графика отпусков в Excel (.xlsx).
+ * Используется ExcelJS, подключённый в index.html.erb.
+ */
+async function rrbsExportXlsx() {
+
+    if (typeof ExcelJS === 'undefined') {
+        alert('Библиотека ExcelJS не загружена');
+        return;
+    }
+
+    // 1. Определяем выбранный период.
+    var year = rrbsPlanYear;
+    var periodStart;
+    var periodEnd;
+    var periodTitle;
+
+    if (rrbsViewMode === 'year') {
+
+        periodStart = new Date(year, 0, 1);
+        periodEnd = new Date(year, 11, 31);
+        periodTitle = 'Год ' + year;
+
+    } else if (rrbsViewMode === 'quarter') {
+
+        var firstMonth = rrbsPlanQuarter * 3;
+
+        periodStart = new Date(year, firstMonth, 1);
+        periodEnd = new Date(year, firstMonth + 3, 0);
+
+        periodTitle =
+            (rrbsPlanQuarter + 1) +
+            ' квартал ' + year;
+
+    } else {
+
+        var currentDate =
+            $('#calendar').fullCalendar('getDate');
+
+        year = currentDate.year();
+        var month = currentDate.month();
+
+        periodStart = new Date(year, month, 1);
+        periodEnd = new Date(year, month + 1, 0);
+
+        periodTitle =
+            rrbsMonthNames[month] + ' ' + year;
+    }
+
+    // 2. Получаем сотрудников с установленными галочками.
+    var selectedIds = [];
+
+    $('input[name="rrbs_resource_checkbox"]:checked')
+        .each(function() {
+            selectedIds.push(String($(this).val()));
+        });
+
+    if (selectedIds.length === 0) {
+        alert('Выберите хотя бы одного сотрудника');
+        return;
+    }
+
+    var resources = rrbs_resources.filter(function(resource) {
+        return selectedIds.indexOf(String(resource[1])) !== -1;
+    });
+
+    // 3. Отбираем отпуска за нужный период.
+    var allEvents =
+        eventsJSON && Array.isArray(eventsJSON.events)
+            ? eventsJSON.events
+            : [];
+
+    var vacations = allEvents.filter(function(event) {
+
+        var start = rrbsParseDate(event.start);
+        var end = rrbsParseDate(event.end);
+
+        return (
+            start &&
+            end &&
+            selectedIds.indexOf(String(event.resource_id)) !== -1 &&
+            start <= periodEnd &&
+            end >= periodStart
+        );
+    });
+
+    // 4. Создаём книгу Excel.
+    var workbook = new ExcelJS.Workbook();
+
+    workbook.creator = 'Redmine';
+    workbook.subject = 'График отпусков';
+
+    var sheet = workbook.addWorksheet('График отпусков');
+    var listSheet = workbook.addWorksheet('Список отпусков');
+
+    var dates = [];
+
+    for (
+        var date = new Date(periodStart);
+        date <= periodEnd;
+        date.setDate(date.getDate() + 1)
+    ) {
+        dates.push(new Date(date));
+    }
+
+    var lastColumn = dates.length + 1;
+
+    // 5. Заголовок графика.
+    sheet.mergeCells(1, 1, 1, lastColumn);
+
+    var titleCell = sheet.getCell(1, 1);
+    titleCell.value = 'График отпусков — ' + periodTitle;
+    titleCell.font = {
+        name: 'Arial',
+        size: 14,
+        bold: true,
+        color: { argb: 'FFFFFFFF' }
+    };
+    titleCell.fill = {
+        type: 'pattern',
+        pattern: 'solid',
+        fgColor: { argb: 'FF24476B' }
+    };
+    titleCell.alignment = {
+        horizontal: 'center',
+        vertical: 'middle'
+    };
+
+    sheet.getRow(1).height = 30;
+
+    // Колонка сотрудников.
+    sheet.getColumn(1).width = 32;
+
+    sheet.mergeCells('A2:A3');
+    sheet.getCell('A2').value = 'Сотрудник';
+
+    // 6. Заголовки месяцев (строка 2).
+    var col = 2;
+
+    while (col <= lastColumn) {
+
+        var monthDate = dates[col - 2];
+        var month = monthDate.getMonth();
+        var monthYear = monthDate.getFullYear();
+
+        var startCol = col;
+
+        while (
+            col <= lastColumn &&
+            dates[col - 2].getMonth() === month &&
+            dates[col - 2].getFullYear() === monthYear
+        ) {
+            col++;
+        }
+
+        var endCol = col - 1;
+
+        if (endCol > startCol) {
+            sheet.mergeCells(2, startCol, 2, endCol);
+        }
+
+        sheet.getCell(2, startCol).value =
+            rrbsMonthNames[month] + ' ' + monthYear;
+    }
+
+    // 7. Дни месяца (строка 3).
+    dates.forEach(function(date, index) {
+
+        var column = index + 2;
+        var cell = sheet.getCell(3, column);
+
+        cell.value = date.getDate();
+
+        sheet.getColumn(column).width = 4.5;
+
+        var weekday = date.getDay();
+
+        if (weekday === 0 || weekday === 6) {
+            cell.fill = {
+                type: 'pattern',
+                pattern: 'solid',
+                fgColor: { argb: 'FFD9DDE3' }
+            };
+        }
+    });
+
+    // Оформление заголовков.
+    [2, 3].forEach(function(rowNumber) {
+
+        sheet.getRow(rowNumber).eachCell({
+            includeEmpty: true
+        }, function(cell) {
+
+            cell.font = {
+                name: 'Arial',
+                size: 10,
+                bold: true
+            };
+
+            cell.alignment = {
+                horizontal: 'center',
+                vertical: 'middle'
+            };
+
+            cell.border = {
+                bottom: {
+                    style: 'thin',
+                    color: { argb: 'FFAAAAAA' }
+                }
+            };
+        });
+    });
+
+    sheet.getRow(2).height = 22;
+    sheet.getRow(3).height = 22;
+
+    // 8. Заполняем строки сотрудников.
+    resources.forEach(function(resource, index) {
+
+        var rowNumber = index + 4;
+        var resourceName = resource[0];
+        var resourceId = String(resource[1]);
+
+        var row = sheet.getRow(rowNumber);
+        row.height = 21;
+
+        var nameCell = sheet.getCell(rowNumber, 1);
+        nameCell.value = resourceName;
+
+        nameCell.font = {
+            name: 'Arial',
+            size: 10,
+            bold: true
+        };
+
+        dates.forEach(function(date, dateIndex) {
+
+            var column = dateIndex + 2;
+            var cell = sheet.getCell(rowNumber, column);
+
+            var weekday = date.getDay();
+
+            // Серый цвет выходных.
+            if (weekday === 0 || weekday === 6) {
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FFF0F0F0' }
+                };
+            }
+
+            // Проверяем, приходится ли на день отпуск.
+            var isVacation = vacations.some(function(event) {
+
+                if (String(event.resource_id) !== resourceId) {
+                    return false;
+                }
+
+                var start = rrbsParseDate(event.start);
+                var end = rrbsParseDate(event.end);
+
+                return date >= start && date <= end;
+            });
+
+            if (isVacation) {
+
+                cell.value = 'О';
+
+                cell.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FF92D5A3' }
+                };
+
+                cell.font = {
+                    name: 'Arial',
+                    size: 10,
+                    bold: true,
+                    color: { argb: 'FF16552B' }
+                };
+            }
+
+            cell.alignment = {
+                horizontal: 'center',
+                vertical: 'middle'
+            };
+        });
+    });
+
+    // Закрепляем заголовки и сотрудников.
+    sheet.views = [{
+        state: 'frozen',
+        xSplit: 1,
+        ySplit: 3
+    }];
+
+    sheet.pageSetup.orientation = 'landscape';
+    sheet.pageSetup.fitToPage = true;
+    sheet.pageSetup.fitToWidth = 1;
+    sheet.pageSetup.fitToHeight = 0;
+    sheet.pageSetup.paperSize = 9;
+
+    // 9. Второй лист — список отпусков.
+    listSheet.columns = [
+        { header: 'Сотрудник', key: 'employee', width: 32 },
+        { header: 'Начало', key: 'start', width: 16 },
+        { header: 'Окончание', key: 'end', width: 16 },
+        { header: 'Дней', key: 'days', width: 12 },
+        { header: 'Название задачи', key: 'title', width: 45 },
+        { header: 'ID задачи', key: 'id', width: 15 }
+    ];
+
+    listSheet.getRow(1).height = 26;
+
+    listSheet.getRow(1).eachCell(function(cell) {
+
+        cell.font = {
+            name: 'Arial',
+            bold: true,
+            color: { argb: 'FFFFFFFF' }
+        };
+
+        cell.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF24476B' }
+        };
+
+        cell.alignment = {
+            vertical: 'middle',
+            horizontal: 'center'
+        };
+    });
+
+    // Сортировка по сотруднику и началу отпуска.
+    vacations.sort(function(a, b) {
+
+        var nameA = String(a.resource || '');
+        var nameB = String(b.resource || '');
+
+        var compare = nameA.localeCompare(nameB, 'ru');
+
+        if (compare !== 0) {
+            return compare;
+        }
+
+        return String(a.start).localeCompare(String(b.start));
+    });
+
+    vacations.forEach(function(event) {
+
+        var start = rrbsParseDate(event.start);
+        var end = rrbsParseDate(event.end);
+
+        // Для списка оставляем фактические даты отпуска.
+        var days =
+            Math.round((Date.UTC(
+                end.getFullYear(),
+                end.getMonth(),
+                end.getDate()
+            ) - Date.UTC(
+                start.getFullYear(),
+                start.getMonth(),
+                start.getDate()
+            )) / 86400000) + 1;
+
+        listSheet.addRow({
+            employee: event.resource || '',
+            start: start,
+            end: end,
+            days: days,
+            title: event.title || '',
+            id: event.id
+        });
+    });
+
+    listSheet.getColumn('start').numFmt = 'dd.mm.yyyy';
+    listSheet.getColumn('end').numFmt = 'dd.mm.yyyy';
+
+    listSheet.autoFilter = {
+        from: 'A1',
+        to: 'F1'
+    };
+
+    listSheet.views = [{
+        state: 'frozen',
+        ySplit: 1
+    }];
+
+    // 10. Создаём и скачиваем файл.
+    var buffer = await workbook.xlsx.writeBuffer();
+
+    var blob = new Blob([buffer], {
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+    });
+
+    var url = URL.createObjectURL(blob);
+    var link = document.createElement('a');
+
+    var filename =
+        'График_отпусков_' +
+        year + '_' +
+        rrbsViewMode +
+        '.xlsx';
+
+    link.href = url;
+    link.download = filename;
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    setTimeout(function() {
+        URL.revokeObjectURL(url);
+    }, 1000);
+}
+
 	
 	// fullcalendarの基本設定
 	var loadCalendar = function() {
@@ -1795,18 +2213,16 @@ $('#rrbs_next_year').click(function() {
 
 customButtons: {
 
-	    exportExcel: {
-        text: 'Excel',
+exportExcel: {
+    text: 'Excel',
 
-        click: function() {
-            if (typeof ExcelJS === 'undefined') {
-                alert('Ошибка: библиотека ExcelJS не загружена');
-                return;
-            }
-
-            alert('Кнопка Excel работает!');
-        }
-    },
+    click: function() {
+        rrbsExportXlsx().catch(function(error) {
+            console.error('Ошибка экспорта Excel:', error);
+            alert('Не удалось создать Excel-файл. Проверьте консоль F12.');
+        });
+    }
+},
 
     quarterPlan: {
 
