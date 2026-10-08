@@ -1795,6 +1795,19 @@ $('#rrbs_next_year').click(function() {
 
 customButtons: {
 
+	    exportExcel: {
+        text: 'Excel',
+
+        click: function() {
+            if (typeof ExcelJS === 'undefined') {
+                alert('Ошибка: библиотека ExcelJS не загружена');
+                return;
+            }
+
+            alert('Кнопка Excel работает!');
+        }
+    },
+
     quarterPlan: {
 
         text: 'Квартал',
@@ -1918,7 +1931,7 @@ customButtons: {
 			header: {
 				left: 'prev,next today',
 				center: 'title',
-				right: 'month,quarterPlan,yearPlan'
+				right: 'month,quarterPlan,yearPlan,exportExcel'
 				// オプション:  month,basicWeek,basicDay,agendaWeek,agendaDay,listWeek
 			},
 			defaultView: 'month',
