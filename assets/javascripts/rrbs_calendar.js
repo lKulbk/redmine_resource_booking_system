@@ -393,6 +393,19 @@ $('.rrbs-department-toggle')
         'Развернуть подразделение'
     );
 
+/*
+ * Год, выбранный в календаре.
+ */
+function rrbsGetDisplayedYear() {
+
+    if (rrbsViewMode === 'month') {
+        return $('#calendar')
+            .fullCalendar('getDate')
+            .year();
+    }
+
+    return rrbsPlanYear;
+}	
 
 /*
  * Показываем справа только отпуска
@@ -404,38 +417,55 @@ var rrbsFilterPlannedVacations = function () {
 
     $('input[name="rrbs_resource_checkbox"]:checked')
         .each(function () {
-
-            selectedResources.push(
-                String($(this).val())
-            );
+            selectedResources.push(String($(this).val()));
         });
 
+    var year = rrbsGetDisplayedYear();
 
-    $('.rrbs-planned-resource')
-        .each(function () {
+    var yearStart = new Date(year, 0, 1);
+    var yearEnd = new Date(year, 11, 31);
 
-            var block =
-                $(this);
+    $('.rrbs-planned-resource').each(function () {
 
-            var resourceId =
-                String(
-                    block.attr('data-resource-id')
-                );
+        var block = $(this);
+        var resourceId = String(block.attr('data-resource-id'));
 
+        // Скрываем сотрудника, если он не выбран.
+        if (selectedResources.indexOf(resourceId) === -1) {
+            block.hide();
+            return;
+        }
 
-            if (
-                selectedResources.indexOf(
-                    resourceId
-                ) !== -1
-            ) {
+        var visibleVacations = 0;
 
-                block.show();
+        block.find('.rrbs-planned-vacation').each(function () {
 
-            } else {
+            var vacation = $(this);
 
-                block.hide();
+            var startDate = rrbsParseDate(
+                vacation.attr('data-start-date')
+            );
+
+            var endDate = rrbsParseDate(
+                vacation.attr('data-end-date')
+            );
+
+            var belongsToYear =
+                startDate &&
+                endDate &&
+                startDate <= yearEnd &&
+                endDate >= yearStart;
+
+            vacation.toggle(!!belongsToYear);
+
+            if (belongsToYear) {
+                visibleVacations++;
             }
         });
+
+        // Не показываем пустой блок сотрудника.
+        block.toggle(visibleVacations > 0);
+    });
 };
 
 	//選択ボタンでリソースが変更された場合
@@ -1503,6 +1533,7 @@ function rrbsShowQuarter() {
             monthString +
             '-01'
     );
+	rrbsFilterPlannedVacations();
 }
 	
 	function rrbsEventIntersectsYear(event, year) {
@@ -1771,6 +1802,7 @@ function rrbsShowQuarter() {
         0,
         rrbsPlanYear + '-01-01'
     );
+		rrbsFilterPlannedVacations();
 });
 
 $('#rrbs_next_year').click(function() {
@@ -1785,6 +1817,7 @@ $('#rrbs_next_year').click(function() {
         0,
         rrbsPlanYear + '-01-01'
     );
+	rrbsFilterPlannedVacations();
 });
 
 	
@@ -2745,6 +2778,7 @@ $('.fc-today-button')
             	rrbsPlanMonth
         );
     }
+		rrbsFilterPlannedVacations();
 );
 	
 	$('#rrbs_year_plan').hide();
