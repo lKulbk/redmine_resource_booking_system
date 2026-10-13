@@ -1042,3 +1042,17 @@ label, input[type='checkbox'] {
 #calendar .fc-exportExcel-button {
     margin-left: 1em !important;
 }
+
+/* Дерево сотрудников без внутренней прокрутки */
+#rrbs_left,
+#rrbs_resource {
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+}
+
+.rrbs-department-employees {
+    height: auto !important;
+    max-height: none !important;
+    overflow-y: visible !important;
+}
