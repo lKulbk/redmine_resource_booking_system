@@ -22,16 +22,19 @@
     >
 
       <h3><%= r[0] %></h3>
+<% resource_events.each do |event| %>
 
-      <% resource_events.each do |event| %>
+  <div
+    class="rrbs-planned-vacation"
+    data-start-date="<%= event.start_date %>"
+    data-end-date="<%= event.due_date %>"
+  >
+    <%= event.assigned_to %>
+    <%= event.start_date %> -
+    <%= event.due_date %>
+  </div>
 
-        <%= event.assigned_to %>
-        <%= event.start_date %> -
-        <%= event.due_date %>
-        <br/>
-
-      <% end %>
-
+<% end %>
     </div>
 
   <% end %>
