@@ -2373,6 +2373,7 @@ exportExcel: {
                 rrbsPlanYear +
                     '-01-01'
             );
+			rrbsFilterPlannedVacations();
         }
     }
 },
@@ -2556,6 +2557,7 @@ exportExcel: {
         				rrbsPlanYear,
         				rrbsPlanMonth
     				);
+					rrbsFilterPlannedVacations();
 				}
 				
 				//cookieから前回の日付を取得
@@ -2619,7 +2621,7 @@ $('.fc-prev-button')
                 0,
                 rrbsPlanYear + '-01-01'
             );
-
+			rrbsFilterPlannedVacations();
             return;
         }
 
@@ -2654,7 +2656,7 @@ $('.fc-next-button')
                 0,
                 rrbsPlanYear + '-01-01'
             );
-
+			rrbsFilterPlannedVacations();
             return;
         }
 
@@ -2690,7 +2692,7 @@ $('.fc-today-button')
                 0,
                 rrbsPlanYear + '-01-01'
             );
-
+			rrbsFilterPlannedVacations();
             return;
         }
 
@@ -2777,8 +2779,8 @@ $('.fc-today-button')
             	rrbsPlanYear,
             	rrbsPlanMonth
         );
-    }
 		rrbsFilterPlannedVacations();
+	}
 );
 	
 	$('#rrbs_year_plan').hide();
